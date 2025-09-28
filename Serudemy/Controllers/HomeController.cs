@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Serudemy.DAL;
-
+using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {

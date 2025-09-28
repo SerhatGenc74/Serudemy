@@ -1,4 +1,4 @@
-﻿using Entities.DTO;
+﻿using Contracts.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts;
 using System;
@@ -21,31 +21,31 @@ namespace Presentation.Controller
         [HttpPost]
         public IActionResult CreateAccount([FromBody] AccountCreateDTO dto)
         {
-            var accounts = _service.accountService.CreateAccount(dto);
+            var accounts = _service.AccountService.CreateAccount(dto);
             return Ok(accounts);
         }
         [HttpGet]
         public IActionResult GetAllAccount()
         {
-            var account = _service.accountService.GetAllAccount();
+            var account = _service.AccountService.GetAllAccount();
             return Ok(account);
         }
         [HttpPut("{id:int}")]
         public IActionResult UpdateAccount([FromBody] AccountUpdateDTO dto,[FromRoute(Name ="id")]int id )
         {
-            var account = _service.accountService.UpdateAccount(dto,id);
+            var account = _service.AccountService.UpdateAccount(dto,id);
             return Ok(account);
         }
         [HttpGet("{id:int}")]
         public IActionResult GetAccountById([FromRoute(Name = "id")] int id)
         {
-            var account = _service.accountService.GetAccountById(id);
+            var account = _service.AccountService.GetAccountById(id);
             return Ok(account);
         }
         [HttpGet("{number}")]
         public IActionResult GetAccountByNumber([FromRoute(Name = "number")]string number)
         {
-            var account = _service.accountService.GetAccountByNumber(number);
+            var account = _service.AccountService.GetAccountByNumber(number);
             return Ok(account);
         }
     }

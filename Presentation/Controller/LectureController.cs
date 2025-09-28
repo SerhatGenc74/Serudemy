@@ -1,4 +1,4 @@
-﻿using Entities.DTO;
+﻿using Contracts.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts;
 using System;

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serudemy.Services;
-using Serudemy.DAL;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {

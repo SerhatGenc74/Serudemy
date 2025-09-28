@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using Entities.DTO;
-using Entities.Models;
-using Serudemy.DAL;
+using Contracts.DTO;
+using Domain.Entities;
 
 namespace Serudemy.Utilities_.AutoMapper
 {

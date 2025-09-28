@@ -1,4 +1,4 @@
-﻿using Entities.DTO;
+﻿using Contracts.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi.Validations;
@@ -15,33 +15,33 @@ namespace Presentation.Controller
     [Route("api/[controller]")]
     public class CourseController : ControllerBase
     {
-        ICourseService _service;
-        public CourseController(ICourseService service)
+        IServiceManager _service;
+        public CourseController(IServiceManager service)
         {
             _service = service;
         }
         [HttpGet]
         public IActionResult GetAllCourse()
         {
-            var course = _service.GetAllCourse();
+            var course = _service.CourseService.GetAllCourse();
             return Ok(course);
         }
         [HttpGet("{id:int}")]
         public IActionResult GetById([FromRoute(Name = "id")] int id)
         {
-            var course = _service.GetCourse(id);
+            var course = _service.CourseService.GetCourse(id);
             return Ok(course);
         }
         [HttpPost]
         public IActionResult CreateCourse([FromBody]CourseCreateDTO dto)
         {
-            _service.CreateCourse(dto);
+            _service.CourseService.CreateCourse(dto);
             return Ok();
         }
         [HttpPut("{id:int}")]
         public IActionResult UpdateCourse([FromRoute(Name ="id")]int id, [FromBody]CourseUpdateDTO dto)
         {
-            _service.UpdateCourse(id,dto);
+            _service.CourseService.UpdateCourse(id,dto);
             return Ok();
         }
 

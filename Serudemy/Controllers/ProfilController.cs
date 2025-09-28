@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Serudemy.DAL;
+using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {
@@ -15,12 +15,7 @@ namespace Serudemy.Controllers
         }
         public IActionResult Index()
         {
-            var Userdata = HttpContext.User;
-            var userId = int.Parse(Userdata.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-            
-            var course = context.StudentCourses.Include(c=>c.Account).Include(c=>c.Courses).Where(sc=>sc.AccountId == userId).ToList();
-
-            return View(course);
+            return View();
         }
     }
 }

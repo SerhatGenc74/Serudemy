@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Presentation.Controller;
 using Repositories.Contracts;
-using Repositories.DAL;
-using Serudemy.DAL;
+using Repositories.Infrastructure;
+using Repositories.Infrastructure.Repositories;
 using Serudemy.Utilities_.AutoMapper;
 using Services.Contracts;
 using Services.Services;
@@ -27,8 +27,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<ILectureService, LectureService>();
+
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 var app = builder.Build();
 

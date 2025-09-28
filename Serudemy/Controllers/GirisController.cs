@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Serudemy.DAL;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {
