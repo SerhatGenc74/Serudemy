@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Contracts.DTO;
+using Contracts.DTOs;
 using Domain.Entities;
 
 namespace Serudemy.Utilities_.AutoMapper
@@ -33,6 +33,28 @@ namespace Serudemy.Utilities_.AutoMapper
             CreateMap<StudentProgressDTO, StudentProgress>().ReverseMap();
             CreateMap<StudentProgressUpdateDTO, StudentProgress>();
             CreateMap<StudentProgressCreateDTO, StudentProgress>();
+
+            CreateMap<StudentClassDTO,StudentClass>().ReverseMap();
+            CreateMap<StudentClassCreateDTO, StudentClass>();
+            CreateMap<StudentClassUpdateDTO, StudentClass>();
+
+            CreateMap<FacultyDTO, Faculty>().ReverseMap();
+            CreateMap<FacultyCreateDTO, Faculty>();
+            CreateMap<DepartmentDTO, Department>().ReverseMap();
+
+            CreateMap<DepartmentUpdateDTO, Department>();
+            CreateMap<DepartmentCreateDTO, Department>();
+            CreateMap<ClassDTO, Class>().ReverseMap();
+
+            CreateMap<ClassCreateDTO, Class>();
+            CreateMap<ClassUpdateDTO, Class>();
+            CreateMap<ClassDTO, Class>().ReverseMap();
+
+            CreateMap<ClassDepartmentDTO, ClassDepartment>().ReverseMap();
+            CreateMap<ClassDepartmentCreateDTO, ClassDepartment>();
+            CreateMap<ClassDepartmentUpdateDTO, ClassDepartment>();
+
+
         }
     }
 }

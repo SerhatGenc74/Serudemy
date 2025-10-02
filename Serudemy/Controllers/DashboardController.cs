@@ -5,19 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Serudemy.Services;
 using System.Collections.Generic;
 using System.Security.Claims;
-using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {
     [Authorize]
     public class DashboardController : Controller
     {
-        SerudemyContext context;
 
-        public DashboardController(SerudemyContext context)
-        {
-            this.context = context;
-        }
+       
         /*
         public IActionResult Index()
         {

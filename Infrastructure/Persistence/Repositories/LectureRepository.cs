@@ -1,12 +1,12 @@
 ﻿using Domain.Entities;
-using Repositories.Contracts;
+using Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Infrastructure.Repositories
+namespace Infrastructure.Persistence.Repositories
 {
     public class LectureRepository : RepositoryBase<Lecture>
     {

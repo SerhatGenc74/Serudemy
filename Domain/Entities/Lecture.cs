@@ -16,7 +16,14 @@ public partial class Lecture
     public string? VideoDesc { get; set; }
 
     public string? VideoUrl { get; set; }
+
     public int? LectureOrder { get; set; }
+
+    public int? LectureDuration { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
 
     public virtual Course? Courses { get; set; }
 

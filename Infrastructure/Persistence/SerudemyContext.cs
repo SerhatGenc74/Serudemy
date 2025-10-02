@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Domain.Entities;
+using System;
 using System.Collections.Generic;
-using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Repositories.Infrastructure;
+namespace Infrastructure.Persistence;
 
 public partial class SerudemyContext : DbContext
 {
@@ -18,63 +18,66 @@ public partial class SerudemyContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
-    public virtual DbSet<StudentCourse> StudentCourses { get; set; }
-
     public virtual DbSet<AccountRole> AccountRoles { get; set; }
 
+    public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<Class> Classes { get; set; }
+
+    public virtual DbSet<ClassDepartment> ClassDepartments { get; set; }
+
     public virtual DbSet<Course> Courses { get; set; }
+
+    public virtual DbSet<Department> Departments { get; set; }
+
+    public virtual DbSet<Faculty> Faculties { get; set; }
 
     public virtual DbSet<Lecture> Lectures { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<StudentClass> StudentClasses { get; set; }
+
     public virtual DbSet<StudentProgress> StudentProgresses { get; set; }
+
+    public virtual DbSet<StudentCourse> StudentCourses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\serha01;Initial Catalog=Serudemy;Integrated Security=True;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\serha01;Initial Catalog=Serudemy;Integrated Security=True;Encrypt=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC2795FDC62C");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC27ABD2A6B5");
 
             entity.ToTable("Account");
 
-            entity.HasIndex(e => e.UserEmail, "UQ__Account__08638DF8F1253CF6").IsUnique();
+            entity.HasIndex(e => e.UserEmail, "UQ__Account__08638DF84046D939").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Birthday).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DepartmentId).HasColumnName("DepartmentID");
+            entity.Property(e => e.Gender).HasMaxLength(17);
             entity.Property(e => e.Name).HasMaxLength(40);
             entity.Property(e => e.Password).HasMaxLength(64);
-            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .IsFixedLength();
             entity.Property(e => e.Surname).HasMaxLength(40);
             entity.Property(e => e.UserEmail).HasMaxLength(50);
             entity.Property(e => e.Userno).HasMaxLength(15);
-        });
 
-        modelBuilder.Entity<StudentCourse>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__AccountC__3214EC27528A838D");
-
-            entity.ToTable("StudentCourse");
-
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.AccountId).HasColumnName("AccountID");
-            entity.Property(e => e.CoursesId).HasColumnName("CoursesID");
-
-            entity.HasOne(d => d.Account).WithMany(p => p.StudentCourses)
-                .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__AccountCo__Accou__5535A963");
-
-            entity.HasOne(d => d.Courses).WithMany(p => p.StudentCourses)
-                .HasForeignKey(d => d.CoursesId)
-                .HasConstraintName("FK__AccountCo__Cours__5629CD9C");
+            entity.HasOne(d => d.Department).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.DepartmentId)
+                .HasConstraintName("FK__Account__Departm__6C190EBB");
         });
 
         modelBuilder.Entity<AccountRole>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountR__3214EC27384AF9C2");
+            entity.HasKey(e => e.Id).HasName("PK__AccountR__3214EC270ECF3284");
 
             entity.ToTable("AccountRole");
 
@@ -91,44 +94,111 @@ public partial class SerudemyContext : DbContext
                 .HasConstraintName("FK__AccountRo__RoleI__2A4B4B5E");
         });
 
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07EC228659");
+
+            entity.ToTable("Category");
+
+            entity.Property(e => e.Name).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<Class>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07D6EA9196");
+
+            entity.ToTable("Class");
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<ClassDepartment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__ClassDep__3214EC071F669A37");
+
+            entity.ToTable("ClassDepartment");
+
+            entity.HasOne(d => d.Class).WithMany(p => p.ClassDepartments)
+                .HasForeignKey(d => d.ClassId)
+                .HasConstraintName("FK__ClassDepa__Class__68487DD7");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.ClassDepartments)
+                .HasForeignKey(d => d.DepartmentId)
+                .HasConstraintName("FK__ClassDepa__Depar__6754599E");
+        });
+
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK__Courses__C92D718731793B56");
+            entity.HasKey(e => e.CourseId).HasName("PK__Courses__C92D71870B612069");
 
             entity.Property(e => e.CourseId)
                 .ValueGeneratedNever()
                 .HasColumnName("CourseID");
+            entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CourseOwnerId).HasColumnName("CourseOwnerID");
-            entity.Property(e => e.ImageUrl).HasColumnName("ImageUrl");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("ID");
             entity.Property(e => e.Name).HasMaxLength(30);
+            entity.Property(e => e.TargetDepartmentId).HasColumnName("TargetDepartmentID");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("FK__Courses__Categor__5CD6CB2B");
 
             entity.HasOne(d => d.CourseOwner).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CourseOwnerId)
-                .HasConstraintName("FK__Courses__CourseO__300424B4");
+                .HasConstraintName("FK__Courses__CourseO__2D27B809");
+
+            entity.HasOne(d => d.TargetDepartment).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.TargetDepartmentId)
+                .HasConstraintName("FK__Courses__TargetD__6D0D32F4");
+        });
+
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC074A463591");
+
+            entity.ToTable("Department");
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.Departments)
+                .HasForeignKey(d => d.FacultyId)
+                .HasConstraintName("FK__Departmen__Facul__619B8048");
+        });
+
+        modelBuilder.Entity<Faculty>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Faculty__3214EC0740D872B4");
+
+            entity.ToTable("Faculty");
+
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Lecture>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lectures__3214EC279BFFBF51");
+            entity.HasKey(e => e.Id).HasName("PK__Lectures__3214EC278787CDD7");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.CoursesId).HasColumnName("CoursesID");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(40);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.VideoDesc).HasMaxLength(500);
             entity.Property(e => e.VideoName).HasMaxLength(40);
-            entity.Property(e => e.LectureOrder).HasMaxLength(40);
 
             entity.HasOne(d => d.Courses).WithMany(p => p.Lectures)
                 .HasForeignKey(d => d.CoursesId)
-                .HasConstraintName("FK__Lectures__Course__3E52440B");
+                .HasConstraintName("FK__Lectures__Course__300424B4");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC27B1AABEA4");
+            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC277EA0F7B5");
 
             entity.ToTable("Role");
 
@@ -136,16 +206,32 @@ public partial class SerudemyContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(12);
         });
 
+        modelBuilder.Entity<StudentClass>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__StudentC__3214EC0708FACA0B");
+
+            entity.ToTable("StudentClass");
+
+            entity.Property(e => e.ClassId).HasColumnName("ClassID");
+            entity.Property(e => e.EnrolledAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Class).WithMany(p => p.StudentClasses)
+                .HasForeignKey(d => d.ClassId)
+                .HasConstraintName("FK__StudentCl__Class__70DDC3D8");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.StudentClasses)
+                .HasForeignKey(d => d.StudentId)
+                .HasConstraintName("FK__StudentCl__Stude__6FE99F9F");
+        });
+
         modelBuilder.Entity<StudentProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__StudentP__3214EC27E5DACEED");
+            entity.HasKey(e => e.Id).HasName("PK__StudentP__3214EC2758825C1D");
 
             entity.ToTable("StudentProgress");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
-            entity.Property(e => e.PlaybackPosition).HasColumnName("PlaybackPosition");
-            entity.Property(e => e.WatchedSeconds).HasColumnName("WatchedSeconds");
             entity.Property(e => e.LastUpdate)
                 .IsRowVersion()
                 .IsConcurrencyToken();
@@ -154,11 +240,34 @@ public partial class SerudemyContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.StudentProgresses)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__StudentPr__Accou__49C3F6B7");
+                .HasConstraintName("FK__StudentPr__Accou__36B12243");
 
             entity.HasOne(d => d.Lectures).WithMany(p => p.StudentProgresses)
                 .HasForeignKey(d => d.LecturesId)
-                .HasConstraintName("FK__StudentPr__Lectu__4AB81AF0");
+                .HasConstraintName("FK__StudentPr__Lectu__37A5467C");
+        });
+
+        modelBuilder.Entity<StudentCourse>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("StudentCourse");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.AccountId).HasColumnName("AccountID");
+            entity.Property(e => e.CoursesId).HasColumnName("CoursesID");
+            entity.Property(e => e.CourseCompleted).HasColumnName("CourseCompleted");
+            entity.Property(e => e.EnrolledAt).HasColumnType("datetime");
+            entity.Property(e => e.CompletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Progress).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.Account).WithMany()
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK__StudentCourse__Account");
+
+            entity.HasOne(d => d.Courses).WithMany()
+                .HasForeignKey(d => d.CoursesId)
+                .HasConstraintName("FK__StudentCourse__Course");
         });
 
         OnModelCreatingPartial(modelBuilder);

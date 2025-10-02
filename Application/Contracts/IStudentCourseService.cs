@@ -1,17 +1,23 @@
-﻿using Contracts.DTO;
+﻿using Contracts.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Contracts
+namespace Application.Contracts
 {
     public interface IStudentCourseService
     {
-        public StudentCourseDTO EnrollStudentInCourse(int studentId, int courseId,StudentCourseCreateDTO dto);
+        public IQueryable<StudentCourseDTO> GetAllStudentCourses();
+        public StudentCourseDTO GetStudentCourseById(int id);
+        public IQueryable<StudentCourseDTO> GetCoursesByStudent(int studentId);
+        public IQueryable<StudentCourseDTO> GetStudentsByCourse(int courseId);
+        public StudentCourseDTO EnrollStudentInCourse(int studentId, int courseId, StudentCourseCreateDTO dto);
+        public StudentCourseDTO CreateStudentCourse(StudentCourseCreateDTO dto);
+        public StudentCourseDTO UpdateStudentCourse(StudentCourseUpdateDTO dto, int id);
+        public void DeleteStudentCourse(int id);
         public bool IsStudentEnrolledInCourse(int studentId, int courseId);
-        public void UnenrollStudentFromCourse(int studentId, int courseId);
-        public IQueryable<StudentCourseDTO> GetCoursesByStudent(int studentId); 
+        public bool UnenrollStudentFromCourse(int studentId, int courseId);
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Contracts
+namespace Application.Contracts
 {
     public interface IServiceManager
     {
@@ -16,5 +16,11 @@ namespace Services.Contracts
         public IStudentCourseService StudentCourse { get; }
         public IStudentProgressService StudentProgress { get; }
         public IFileService FileService { get; }
+        public IClassService ClassService { get; }
+        public IDepartmentService DepartmentService { get; }
+        public IFacultyService FacultyService { get; }
+        public IClassDepartmentService ClassDepartmentService { get; }
+        public ICategoryService CategoryService { get; }
+        public IStudentClassService StudentClassService { get; }
     }
 }

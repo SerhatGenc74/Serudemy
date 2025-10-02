@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contracts.DTO
+namespace Contracts.DTOs
 {
     public record AccountRoleDTO
     {
         public int Id { get; init; }
         public int RoleId { get; init; }
         public int AccountId { get; init; }
-        AccountDTO? Account { get; init; }
-        AccountRoleDTO? Role { get; init; }
+        public AccountDTO? Account { get; init; }
+        public RoleDTO? Role { get; init; }
     }
 }

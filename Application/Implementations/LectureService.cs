@@ -1,16 +1,16 @@
-﻿using AutoMapper;
-using Contracts.DTO;
+﻿using Application.Contracts;
+using AutoMapper;
+using Contracts.DTOs;
 using Domain.Entities;
+using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Contracts;
-using Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Services
+namespace Application.Implementations
 {
     public class LectureService : ILectureService
     {

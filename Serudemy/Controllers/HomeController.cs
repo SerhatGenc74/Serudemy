@@ -5,19 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        SerudemyContext context;
-        public HomeController(SerudemyContext context, ILogger<HomeController> logger)
-        {
-            this.context = context;
-            _logger = logger;
-        }
         /*
         public IActionResult Index()
         {

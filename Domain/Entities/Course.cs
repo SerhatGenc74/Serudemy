@@ -14,11 +14,24 @@ public partial class Course
     public string? Name { get; set; }
 
     public string? Description { get; set; }
+
     public string? ImageUrl { get; set; }
 
-    public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
+    public DateTime? CreatedAt { get; set; }
+
+    public int? CategoryId { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public int? TargetDepartmentId { get; set; }
+
+    public int? TargetGradeLevel { get; set; }
+
+    public virtual Category? Category { get; set; }
 
     public virtual Account? CourseOwner { get; set; }
 
     public virtual ICollection<Lecture> Lectures { get; set; } = new List<Lecture>();
+
+    public virtual Department? TargetDepartment { get; set; }
 }

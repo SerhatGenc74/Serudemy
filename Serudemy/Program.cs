@@ -1,13 +1,13 @@
+using Application.Contracts;
+using Application.Implementations;
 using AutoMapper;
+using Domain.Interfaces;
+using Infrastructure.Persistence;
+using Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Presentation.Controller;
-using Repositories.Contracts;
-using Repositories.Infrastructure;
-using Repositories.Infrastructure.Repositories;
 using Serudemy.Utilities_.AutoMapper;
-using Services.Contracts;
-using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +22,26 @@ builder.Services.AddAuthentication().AddCookie(options=>
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(CourseController).Assembly);
+
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+    
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -41,6 +61,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Add CORS middleware (must be before UseRouting)
+app.UseCors("AllowReactApp"); // or "AllowAll" for development
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseRouting();

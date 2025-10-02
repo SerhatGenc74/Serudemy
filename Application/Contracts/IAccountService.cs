@@ -1,11 +1,11 @@
-﻿using Contracts.DTO;
+﻿using Contracts.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Contracts
+namespace Application.Contracts
 {
     public interface IAccountService
     {
@@ -13,6 +13,7 @@ namespace Services.Contracts
         public AccountDTO GetAccountById(int id);
         public AccountDTO GetAccountByNumber(string number);
         public AccountDTO CreateAccount(AccountCreateDTO dto);
-        public AccountDTO UpdateAccount(AccountUpdateDTO dto,int id);
+        public AccountDTO UpdateAccount(AccountUpdateDTO dto, int id);
+        public void DeleteAccount(int id);
     }
 }

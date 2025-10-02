@@ -5,13 +5,13 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Contracts
+namespace Domain.Interfaces
 {
     public interface IRepositoryBase<T>  where T : class
     {
         IQueryable<T> FindAll(bool trackChanges);
         IQueryable<T> FindAllByCondition(Expression<Func<T,bool>> expression,bool trackChanges);
-        T FindByCondition(Expression<Func<T, bool>> expression, bool trackChanges);
+        T? FindByCondition(Expression<Func<T, bool>> expression, bool trackChanges);
         void Create(T entity);
         void Update(T entity);
         void Delete(T entity);

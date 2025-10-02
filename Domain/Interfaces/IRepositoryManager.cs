@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Contracts
+namespace Domain.Interfaces
 {
     public interface IRepositoryManager
     {
@@ -14,8 +14,15 @@ namespace Repositories.Contracts
         IRepositoryBase<AccountRole> AccountRole { get; }
         IRepositoryBase<Course> Course { get; }
         IRepositoryBase<Lecture> Lecture { get; }
-        IRepositoryBase<StudentCourse> StudentCourse { get; }
         IRepositoryBase<StudentProgress> StudentProgress { get; }
+        IRepositoryBase<Category> Category { get; }
+        IRepositoryBase<Department> Department { get; }
+        IRepositoryBase<StudentClass> StudentClass { get; } 
+        IRepositoryBase<ClassDepartment> ClassDepartment { get; }
+        IRepositoryBase<Faculty> Faculty { get; }
+        IRepositoryBase<Class> Class { get; }
+        IRepositoryBase<StudentCourse> StudentCourse { get; }
+
         void Save();
     }
 }

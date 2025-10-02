@@ -1,19 +1,23 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Domain.Entities;
-
-public partial class StudentCourse
+namespace Domain.Entities
 {
-    public int Id { get; set; }
+    public class StudentCourse
+    {
+        public int Id { get; set; }
+        public int AccountId { get; set; }
+        public int CoursesId { get; set; }
+        public bool CourseCompleted { get; set; }
+        public DateTime EnrolledAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public decimal? Progress { get; set; }
 
-    public int? AccountId { get; set; }
-
-    public int? CoursesId { get; set; }
-
-    public bool? CourseCompleted { get; set; }
-
-    public virtual Account? Account { get; set; }
-
-    public virtual Course? Courses { get; set; }
+        // Navigation properties
+        public virtual Account Account { get; set; } = null!;
+        public virtual Course Courses { get; set; } = null!;
+    }
 }

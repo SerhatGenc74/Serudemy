@@ -1,24 +1,37 @@
-﻿using AutoMapper;
-using Contracts.DTO;
+﻿using Application.Contracts;
+using AutoMapper;
+using Contracts.DTOs;
 using Domain.Entities;
-using Repositories.Contracts;
-using Services.Contracts;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Services
+namespace Application.Implementations
 {
     public class RoleService : IRoleService
     {
-        IRepositoryManager _manager;
-        IMapper _mapper;
-        public RoleService(IRepositoryManager manager,IMapper mapper) 
+        private readonly IRepositoryManager _manager;
+        private readonly IMapper _mapper;
+        
+        public RoleService(IRepositoryManager manager, IMapper mapper) 
         {
             _mapper = mapper;
             _manager = manager;
+        }
+
+        public List<RoleDTO> GetAllRoles()
+        {
+            var entities = _manager.Role.FindAll(false).ToList();
+            return _mapper.Map<List<RoleDTO>>(entities);
+        }
+
+        public RoleDTO GetRole(int id)
+        {
+            var entity = _manager.Role.FindByCondition(x => x.Id == id, false);
+            return _mapper.Map<RoleDTO>(entity);
         }
 
         public RoleDTO CreateRole(RoleCreateDTO dto)
@@ -31,29 +44,27 @@ namespace Services.Services
             return _mapper.Map<RoleDTO>(entity);
         }
 
-        public void DeleteRole()
+        public RoleDTO UpdateRole(RoleUpdateDTO dto, int id)
         {
-            throw new NotImplementedException();
-        }
+            var entity = _manager.Role.FindByCondition(r => r.Id == id, false);
+            if (entity == null)
+                return null;
 
-        public List<RoleDTO> GetAllRoles()
-        {
-            var entity = _manager.Role.FindAll(false).ToList();
-            return _mapper.Map<List<RoleDTO>>(entity);
-        }
-
-        public RoleDTO GetRole(int id)
-        {
-            var entity = _manager.Role.FindByCondition(x => x.Id == id, false);
-            return _mapper.Map<RoleDTO>(entity);
-        }
-
-        public RoleDTO UpdateRole(RoleUpdateDTO dto)
-        {
-          var entity = _mapper.Map<Role>(dto);
+            _mapper.Map(dto, entity);
             _manager.Role.Update(entity);
             _manager.Save();
+            
             return _mapper.Map<RoleDTO>(entity);
+        }
+
+        public void DeleteRole(int id)
+        {
+            var entity = _manager.Role.FindByCondition(r => r.Id == id, false);
+            if (entity != null)
+            {
+                _manager.Role.Delete(entity);
+                _manager.Save();
+            }
         }
     }
 }

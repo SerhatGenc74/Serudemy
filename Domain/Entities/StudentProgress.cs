@@ -16,8 +16,10 @@ public partial class StudentProgress
     public bool? LecturesCompleted { get; set; }
 
     public byte[] LastUpdate { get; set; } = null!;
-    public int WatchedSeconds { get; set; }
-    public int PlaybackPosition { get; set; }
+
+    public int? PlaybackPosition { get; set; }
+
+    public int? WatchedSeconds { get; set; }
 
     public virtual Account? Account { get; set; }
 

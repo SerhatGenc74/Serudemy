@@ -19,11 +19,27 @@ public partial class Account
 
     public bool? Status { get; set; }
 
-    public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
+    public DateTime? Birthday { get; set; }
+
+    public string? Gender { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public string? FotoPath { get; set; }
+
+    public string? Phone { get; set; }
+
+    public int? GradeLevel { get; set; }
+
+    public int? DepartmentId { get; set; }
 
     public virtual ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+
+    public virtual Department? Department { get; set; }
+
+    public virtual ICollection<StudentClass> StudentClasses { get; set; } = new List<StudentClass>();
 
     public virtual ICollection<StudentProgress> StudentProgresses { get; set; } = new List<StudentProgress>();
 }

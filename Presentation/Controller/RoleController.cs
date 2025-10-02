@@ -1,6 +1,6 @@
-﻿using Contracts.DTO;
+﻿using Application.Contracts;
+using Contracts.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,35 +13,50 @@ namespace Presentation.Controller
     [Route("api/[controller]")]
     public class RoleController : ControllerBase
     {
-        IServiceManager _service;
+        private readonly IServiceManager _service;
+        
         public RoleController(IServiceManager service)
         {
             _service = service;
         }
-        [HttpGet("all-role")]
+
+        [HttpGet]
         public IActionResult GetAllRoles()
         {
             var roles = _service.RoleService.GetAllRoles();
             return Ok(roles);
         }
-        [HttpGet("role/{id:int}")]
-        public IActionResult GetRole([FromRoute]int id)
+
+        [HttpGet("{id:int}")]
+        public IActionResult GetRole([FromRoute(Name = "id")] int id)
         {
             var role = _service.RoleService.GetRole(id);
-            return Ok(role);
-        }
-        [HttpPost("create-role")]
-        public IActionResult CreateRole([FromBody] RoleCreateDTO dto)
-        {
-            var role = _service.RoleService.CreateRole(dto);
-            return Ok(role);
-        }
-        [HttpPut("update-role")]
-        public IActionResult UpdateRole([FromBody] RoleUpdateDTO dto)
-        {
-            var role = _service.RoleService.UpdateRole(dto);
+            if (role == null)
+                return NotFound();
             return Ok(role);
         }
 
+        [HttpPost]
+        public IActionResult CreateRole([FromBody] RoleCreateDTO dto)
+        {
+            var role = _service.RoleService.CreateRole(dto);
+            return CreatedAtAction(nameof(GetRole), new { id = role.Id }, role);
+        }
+
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateRole([FromRoute(Name = "id")] int id, [FromBody] RoleUpdateDTO dto)
+        {
+            var role = _service.RoleService.UpdateRole(dto, id);
+            if (role == null)
+                return NotFound();
+            return Ok(role);
+        }
+
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteRole([FromRoute(Name = "id")] int id)
+        {
+            _service.RoleService.DeleteRole(id);
+            return NoContent();
+        }
     }
 }

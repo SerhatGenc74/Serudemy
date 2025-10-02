@@ -1,0 +1,34 @@
+﻿@model Serudemy.Models.CourseViewModel
+
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title mb-3">@Model.Name</h1>
+            <p class="card-text text-muted">@Model.Description</p>
+
+            <hr />
+
+            <h4 class="mb-4">Dersler</h4>
+
+            @foreach (var lecture in Model.Lectures)
+            {
+                <div class="mb-5 border rounded p-3">
+                    <h5 class="mb-2">@lecture.Name</h5>
+
+                    @if (!string.IsNullOrWhiteSpace(lecture.VideoUrl))
+                    {
+
+                        <div class="ratio ratio-16x9">
+                            <iframe src="@lecture.VideoUrl" title="@lecture.VideoName" allowfullscreen></iframe>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-danger">Video linki eklenmemiş.</p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

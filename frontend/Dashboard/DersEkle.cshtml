@@ -1,0 +1,23 @@
+﻿@model LectureViewModel
+<h2>@ViewBag.CourseTitle - Yeni Ders Ekle</h2>
+
+<form asp-action="DersEkle" enctype="multipart/form-data" method="post">
+    <input type="hidden" name="CourseId" value="@ViewBag.CourseID" />
+
+    <div class="mb-3">
+        <label class="form-label">Ders Başlığı</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Video Dosyası</label>
+        <input type="file" asp-for="VideoUrl" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">DersAciklama</label>
+        <input asp-for="VideoDesc" type="text" class="form-control" />
+    </div>
+    
+    <button type="submit" class="btn btn-success">Dersi Kaydet</button>
+</form>

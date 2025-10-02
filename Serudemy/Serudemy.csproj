@@ -43,10 +43,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Contracts\Contracts.csproj" />
-    <ProjectReference Include="..\Entities\Domain.csproj" />
-    <ProjectReference Include="..\Repositories\Infrastructure.csproj" />
-    <ProjectReference Include="..\Services\Application.csproj" />
-	<ProjectReference Include="..\Presentation\Presentation.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Presentation\Presentation.csproj" />
   </ItemGroup>
 
 </Project>

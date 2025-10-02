@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contracts.DTO
+namespace Contracts.DTOs
 {
     public record CourseDTO
     {
@@ -18,6 +18,15 @@ namespace Contracts.DTO
 
         public string? Description { get; init; }
         public string? ImageUrl { get; init; }
+        public DateTime? CreatedAt { get; init; }
+
+        public int? CategoryId { get; init; }
+
+        public DateTime? UpdatedAt { get; init; }
+
+        public int? TargetDepartmentId { get; init; }
+
+        public int? TargetGradeLevel { get; init; }
         public AccountDTO? CourseOwner { get; init; }
     }
 }

@@ -2,23 +2,12 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Infrastructure;
 
 namespace Serudemy.Controllers
 {
     public class GirisController : Controller
     {
-        SerudemyContext db;
         IHttpContextAccessor httpContextAccessor;
-        public GirisController(SerudemyContext serudemyContext, IHttpContextAccessor httpContextAccessor)
-        {
-            db = serudemyContext;
-            this.httpContextAccessor = httpContextAccessor;
-        }
-        public IActionResult Index()
-        {
-            return View();
-        }
         /*
         [HttpPost]
         public IActionResult Index(Login model)

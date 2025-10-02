@@ -1,15 +1,15 @@
-﻿using AutoMapper;
-using Contracts.DTO;
+﻿using Application.Contracts;
+using AutoMapper;
+using Contracts.DTOs;
 using Domain.Entities;
-using Repositories.Contracts;
-using Services.Contracts;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Services
+namespace Application.Implementations
 {
     public class AccountService : IAccountService
     {
@@ -54,6 +54,8 @@ namespace Services.Services
         public AccountDTO UpdateAccount(AccountUpdateDTO dto,int id)
         {
             var entity = _manager.Account.FindByCondition(u => u.Id == id, false);
+            if (entity == null)
+                return null;
 
             _mapper.Map(dto, entity);
 
@@ -61,6 +63,16 @@ namespace Services.Services
             _manager.Save();
 
             return _mapper.Map<AccountDTO>(entity);
+        }
+
+        public void DeleteAccount(int id)
+        {
+            var entity = _manager.Account.FindByCondition(u => u.Id == id, false);
+            if (entity != null)
+            {
+                _manager.Account.Delete(entity);
+                _manager.Save();
+            }
         }
     }
 }

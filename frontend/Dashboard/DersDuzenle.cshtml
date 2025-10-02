@@ -1,0 +1,37 @@
+﻿@model Serudemy.DAL.Lecture
+
+<h2 class="mb-4">Ders Düzenle</h2>
+
+<div class="container">
+    <form asp-action="DersDuzenle" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" name="VideoUrl" value="@Model.VideoUrl" />
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <input type="hidden" name="CoursesId" value="@Model.CoursesId" />
+        <input type="hidden" name="LectureOrder" value="@Model.LectureOrder" />
+
+        <div class="mb-3">
+            <label for="Name" class="form-label">Ders Başlığı</label>
+            <input type="text" class="form-control" id="Name" asp-for="Name" placeholder="Ders Başlığı" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="VideoDesc" class="form-label">Ders Açıklaması</label>
+            <textarea class="form-control" id="VideoDesc" asp-for="VideoDesc" placeholder="Ders Açıklaması" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="VideoName" class="form-label">Video Başlığı</label>
+            <input type="text" class="form-control" id="VideoName" asp-for="VideoName" placeholder="Video Başlığı">
+        </div>
+
+        <div class="mb-3">
+            <label for="VideoUrl" class="form-label">Video Dosyası</label>
+            <input type="file" accept=".mp4" class="form-control" value="@Model.VideoUrl" name="file">
+                <small class="form-text text-muted">Mevcut Dosya: <a href="@Model.VideoUrl" target="_blank">@Model.VideoName</a></small> 
+        </div>
+
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <a href="@Url.Action("Dersler","Dashboard",new {CourseId = Model.CoursesId})" class="btn btn-secondary">İptal</a>
+    </form>
+</div>

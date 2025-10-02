@@ -1,14 +1,14 @@
-﻿using AutoMapper;
+﻿using Application.Contracts;
+using AutoMapper;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Repositories.Contracts;
-using Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Services
+namespace Application.Implementations
 {
     public class FileService : IFileService
     {

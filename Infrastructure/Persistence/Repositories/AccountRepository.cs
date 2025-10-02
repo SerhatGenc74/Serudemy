@@ -1,13 +1,13 @@
-﻿using Repositories.Contracts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using Infrastructure.Persistence.Repositories;
 using Domain.Entities;
 
-namespace Repositories.Infrastructure.Repositories
+namespace Infrastructure.Persistence.Repositories
 {
     public class AccountRepository : RepositoryBase<Account>
     {
