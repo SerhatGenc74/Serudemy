@@ -22,6 +22,7 @@ namespace Contracts.DTOs
         public int WatchedSeconds { get; init; }
         public int PlaybackPosition { get; init; }
         public AccountDTO? Account { get; init; }
-        public LectureDTO? Lecture { get; init; }
+        public LectureDTO? Lectures { get; init; }
+
     }
 }

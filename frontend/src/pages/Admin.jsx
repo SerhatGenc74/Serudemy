@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useFetch from '../hooks/useFetch';
-import './Admin.css';
+import '../styles/Admin.css';
 import CourseTable from '../components/CourseTable';
 import Lectures from '../components/LectureTable';
 import Dashboard from '../components/Dashboard';
@@ -39,8 +39,6 @@ const Admin = () => {
                 return <UsersTable accounts={accounts} accountsLoading={accountsLoading} />;
             case 'lectures':
                 return <Lectures lectures={lectures} lecturesLoading={lecturesLoading} />;
-            case 'enrollments':
-                return renderEnrollments();
             default:
                 return <Dashboard stats={stats} />;
         }

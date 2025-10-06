@@ -2,7 +2,7 @@
 using Contracts.DTOs;
 using Domain.Entities;
 
-namespace Serudemy.Utilities_.AutoMapper
+namespace Serudemy.Utilities.AutoMapper
 {
     public class MappingProfile : Profile
     {
@@ -12,11 +12,18 @@ namespace Serudemy.Utilities_.AutoMapper
             CreateMap<AccountUpdateDTO, Account>();
             CreateMap<AccountDTO, Account>().ReverseMap();
 
+
+            CreateMap<AccountRoleDTO, AccountRole>().ReverseMap();
             CreateMap<AccountRoleCreateDTO, AccountRole>();
+            CreateMap<AccountRoleUpdateDTO, AccountRole>();
 
             CreateMap<CourseDTO, Course>().ReverseMap();
             CreateMap<CourseCreateDTO, Course>();
             CreateMap<CourseUpdateDTO, Course>();
+
+            CreateMap<CategoryDTO, Category>().ReverseMap();
+            CreateMap<CategoryCreateDTO, Category>();
+            CreateMap<CategoryUpdateDTO, Category>();
 
             CreateMap<LectureDTO, Lecture>().ReverseMap();
             CreateMap<LectureUpdateDTO, Lecture>();

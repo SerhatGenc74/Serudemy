@@ -42,7 +42,11 @@ namespace Application.Implementations
         }
         public IQueryable<CourseDTO> GetCoursesByInstructor(int instructorId)
         {
-            var entity = _manager.Course.FindAllByCondition(c => c.CourseOwnerId == instructorId, false);
+            var entity = _manager.Course
+                .FindAllByCondition(c => c.CourseOwnerId == instructorId, false)
+                .Include(c => c.CourseOwner)
+                .Include(c => c.Lectures)
+                .Include(c => c.TargetDepartment);
 
             return _mapper.ProjectTo<CourseDTO>(entity);
         }
@@ -63,14 +67,22 @@ namespace Application.Implementations
 
         public IQueryable<CourseDTO> GetAllCourse()
         {
-            var entity = _manager.Course.FindAll(false);
+            var entity = _manager.Course
+                .FindAll(false)
+                .Include(c => c.CourseOwner)
+                .Include(c => c.Lectures)
+                .Include(c => c.TargetDepartment);
 
             return _mapper.ProjectTo<CourseDTO>(entity);
         }
 
         public CourseDTO GetCourse(int courseId)
         {
-            var entity = _manager.Course.FindByCondition(x => x.CourseId == courseId, false);
+            var entity = _manager.Course
+                .FindAllByCondition(x => x.CourseId == courseId, false)                .Include(c => c.CourseOwner)
+                .Include(c => c.Lectures)
+                .Include(c => c.TargetDepartment)
+                .FirstOrDefault();
 
             return _mapper.Map<CourseDTO>(entity);
         }

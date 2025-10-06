@@ -38,6 +38,10 @@ namespace Contracts.DTOs
 
         public int? DepartmentId { get; init; }
         public List<int>? RoleIds { get; init; }
+        
+        // Navigation Properties
+        public ICollection<AccountRoleDTO>? AccountRoles { get; init; }
         public DepartmentDTO? Department { get; init; }
+        public ICollection<StudentClassDTO>? StudentClasses { get; init; }
     }
 }

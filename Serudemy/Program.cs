@@ -7,7 +7,7 @@ using Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Presentation.Controller;
-using Serudemy.Utilities_.AutoMapper;
+using Serudemy.Utilities.AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 

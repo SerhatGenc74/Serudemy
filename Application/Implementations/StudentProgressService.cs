@@ -89,6 +89,7 @@ namespace Application.Implementations
             }
         }
 
+
         public int GetCompletedLessonCount(int studentId, int courseId)
         {
             var count = _manager.StudentProgress
@@ -107,7 +108,19 @@ namespace Application.Implementations
 
             return completedLectures / totalLectures * 100;
         }
+        public void UpdatePlaybackPosition(int studentId, int lectureId, int position)
+        {
+            var progress = _manager.StudentProgress
+                .FindAllByCondition(x => x.AccountId == studentId && x.LecturesId == lectureId, false)
+                .FirstOrDefault();
 
+            if (progress != null)
+            {
+                progress.PlaybackPosition = position;
+                _manager.StudentProgress.Update(progress);
+                _manager.Save();
+            }
+        }
         public int GetPlaybackPosition(int studentId, int lectureId)
         {
             var playbackPosition = _manager.StudentProgress
@@ -159,6 +172,15 @@ namespace Application.Implementations
                 .FirstOrDefault();
 
             return _mapper.Map<StudentProgressDTO>(entity);
+        }
+         public IQueryable<StudentProgressDTO> GetStudentProgressInCourse(int studentId, int courseId)
+        {
+            var entities = _manager.StudentProgress
+                .FindAllByCondition(sp => sp.AccountId == studentId && sp.Lectures.CoursesId == courseId, false)
+                .Include(sp => sp.Lectures)
+                .Include(sp => sp.Account);
+
+            return _mapper.ProjectTo<StudentProgressDTO>(entities);
         }
 
         private bool IsLessonCompleted(int studentId, int lessonId)

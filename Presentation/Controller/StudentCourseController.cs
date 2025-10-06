@@ -36,14 +36,15 @@ namespace Presentation.Controller
             return Ok(studentCourse);
         }
 
-        [HttpGet("student/{studentId:int}")]
+        [HttpGet("courses/student/{studentId:int}")]
         public IActionResult GetCoursesByStudent([FromRoute(Name = "studentId")] int studentId)
         {
             var courses = _service.StudentCourse.GetCoursesByStudent(studentId);
             return Ok(courses);
         }
+        
 
-        [HttpGet("course/{courseId:int}")]
+        [HttpGet("course/{courseId:int}/students")]
         public IActionResult GetStudentsByCourse([FromRoute(Name = "courseId")] int courseId)
         {
             var students = _service.StudentCourse.GetStudentsByCourse(courseId);

@@ -28,6 +28,12 @@ namespace Presentation.Controller
             var courses = _service.CourseService.GetAllCourse();
             return Ok(courses);
         }
+        [HttpGet("random")]
+        public async Task<IActionResult> GetRandomNumber()
+        {
+            var number = await _service.CourseService.GenerateUniqueCourseIdAsync();
+            return Ok(number);
+        }
 
         [HttpGet("{id:int}")]
         public IActionResult GetCourseById([FromRoute(Name = "id")] int id)
@@ -52,11 +58,11 @@ namespace Presentation.Controller
             return Ok(courses);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public IActionResult CreateCourse([FromBody] CourseCreateDTO dto)
         {
             var course = _service.CourseService.CreateCourse(dto);
-            return CreatedAtAction(nameof(GetCourseById), new { id = course.Id }, course);
+            return Ok(course);
         }
 
         [HttpPut("{id:int}")]

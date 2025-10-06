@@ -253,9 +253,9 @@ public partial class SerudemyContext : DbContext
 
             entity.ToTable("StudentCourse");
 
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.AccountId).HasColumnName("AccountID");
-            entity.Property(e => e.CoursesId).HasColumnName("CoursesID");
+            entity.Property(e => e.Id).HasColumnName("Id");
+            entity.Property(e => e.AccountId).HasColumnName("AccountId");
+            entity.Property(e => e.CourseId).HasColumnName("CourseId");
             entity.Property(e => e.CourseCompleted).HasColumnName("CourseCompleted");
             entity.Property(e => e.EnrolledAt).HasColumnType("datetime");
             entity.Property(e => e.CompletedAt).HasColumnType("datetime");
@@ -266,7 +266,7 @@ public partial class SerudemyContext : DbContext
                 .HasConstraintName("FK__StudentCourse__Account");
 
             entity.HasOne(d => d.Courses).WithMany()
-                .HasForeignKey(d => d.CoursesId)
+                .HasForeignKey(d => d.CourseId)
                 .HasConstraintName("FK__StudentCourse__Course");
         });
 

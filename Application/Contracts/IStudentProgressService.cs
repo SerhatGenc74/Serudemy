@@ -16,9 +16,11 @@ namespace Application.Contracts
         public IQueryable<StudentProgressDTO> GetCompletedLessons(int studentId, int courseId);
         public IQueryable<StudentProgressDTO> GetStudentProgressByStudentId(int studentId);
         public IQueryable<StudentProgressDTO> GetStudentProgressByLectureId(int lectureId);
+        public IQueryable<StudentProgressDTO> GetStudentProgressInCourse(int studentId, int courseId);
         public void MarkLessonAsCompleted(int studentId, int lessonId);
         public int GetCompletedLessonCount(int studentId, int courseId);
         public double GetProgressPercentage(int studentId, int courseId);
+        public void UpdatePlaybackPosition(int studentId, int lectureId, int position);
         public int GetPlaybackPosition(int studentId, int lectureId);
         public StudentProgressDTO CreateStudentProgress(StudentProgressCreateDTO dto);
         public StudentProgressDTO UpdateStudentProgress(StudentProgressUpdateDTO dto, int id);

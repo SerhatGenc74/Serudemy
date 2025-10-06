@@ -39,14 +39,20 @@ namespace Application.Implementations
 
         public IQueryable<LectureDTO> GetAllLectures()
         {
-            var entity = _manager.Lecture.FindAll(false);
+            var entity = _manager.Lecture
+                .FindAll(false)
+                .Include(l => l.Courses)
+                .Include(l => l.StudentProgresses);
             
             return _mapper.ProjectTo<LectureDTO>(entity);
         }
 
         public IQueryable<LectureDTO> GetAllLectures(int courseId)
         {
-            var entity = _manager.Lecture.FindAllByCondition(x => x.CoursesId == courseId, false);
+            var entity = _manager.Lecture
+                .FindAllByCondition(x => x.CoursesId == courseId, false)
+                .Include(l => l.Courses)
+                .Include(l => l.StudentProgresses);
 
             return _mapper.ProjectTo<LectureDTO>(entity);
         }
@@ -54,21 +60,32 @@ namespace Application.Implementations
         //Spesifed course ile ilgili lectureları getirir
         public IQueryable<LectureDTO> GetAllLecturesWithCourse(int courseId)
         {
-            var entity = _manager.Lecture.FindAllByCondition(x => x.CoursesId == courseId, true).Include(c=> c.Courses);
+            var entity = _manager.Lecture
+                .FindAllByCondition(x => x.CoursesId == courseId, true)
+                .Include(c => c.Courses)
+                .Include(l => l.StudentProgresses);
 
             return _mapper.ProjectTo<LectureDTO>(entity);
         }
 
         public LectureDTO GetFirstLecture(int courseId)
         {
-            var entity = _manager.Lecture.FindByCondition(x => x.CoursesId == courseId && x.LectureOrder == 1, false);
+            var entity = _manager.Lecture
+                .FindAllByCondition(x => x.CoursesId == courseId && x.LectureOrder == 1, false)
+                .Include(l => l.Courses)
+                .Include(l => l.StudentProgresses)
+                .FirstOrDefault();
 
             return _mapper.Map<LectureDTO>(entity);
         }
 
         public LectureDTO GetLecture(int lectureId)
         {
-            var entity = _manager.Lecture.FindByCondition(x => x.Id == lectureId, false);
+            var entity = _manager.Lecture
+                .FindAllByCondition(x => x.Id == lectureId, false)
+                .Include(l => l.Courses)
+                .Include(l => l.StudentProgresses)
+                .FirstOrDefault();
 
             return _mapper.Map<LectureDTO>(entity);
         }

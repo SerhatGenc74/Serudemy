@@ -3,6 +3,7 @@ using AutoMapper;
 using Contracts.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,13 +41,16 @@ namespace Application.Implementations
 
         public AccountDTO GetAccountByNumber(string number)
         {
-            var entity = _manager.Account.FindByCondition(u => u.Userno == number, false);
+            var entity = _manager.Account
+                .FindAllByCondition(u => u.Userno == number, false)
+                .FirstOrDefault();
             return _mapper.Map<AccountDTO>(entity);
         }
 
         public IQueryable<AccountDTO> GetAllAccount()
         {
-            var entity = _manager.Account.FindAll(false);
+            var entity = _manager.Account
+                .FindAll(false);
 
             return _mapper.ProjectTo<AccountDTO>(entity);
         }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useFetch from '../hooks/useFetch';
-import './InstructorDashboard.css';
+import '../styles/InstructorDashboard.css';
 
 const InstructorDashboard = () => {
     const navigate = useNavigate();
@@ -265,9 +265,11 @@ const InstructorDashboard = () => {
                                                             </div>
                                                         </td>
                                                         <td>
+                                                            <Link to={`/course/${course.courseId}/students`} className="student-link">
                                                             <span className="student-count">
                                                                 {course.studentCount || 0} öğrenci
                                                             </span>
+                                                            </Link>
                                                         </td>
                                                         <td>
                                                             <span className="revenue">
@@ -298,14 +300,14 @@ const InstructorDashboard = () => {
                                                                     <i className="fas fa-eye"></i>
                                                                 </Link>
                                                                 <Link 
-                                                                    to={`/instructor/courses/${course.courseId}/edit`}
+                                                                    to={`/instructor/edit-course/${course.courseId}`}
                                                                     className="action-btn edit"
                                                                     title="Düzenle"
                                                                 >
                                                                     <i className="fas fa-edit"></i>
                                                                 </Link>
                                                                 <Link 
-                                                                    to={`/instructor/courses/${course.courseId}/lectures`}
+                                                                    to={`/course/${course.courseId}/lessons`}
                                                                     className="action-btn lectures"
                                                                     title="Dersleri Yönet"
                                                                 >

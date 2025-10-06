@@ -10,7 +10,7 @@ namespace Domain.Entities
     {
         public int Id { get; set; }
         public int AccountId { get; set; }
-        public int CoursesId { get; set; }
+        public int CourseId { get; set; }
         public bool CourseCompleted { get; set; }
         public DateTime EnrolledAt { get; set; }
         public DateTime? CompletedAt { get; set; }

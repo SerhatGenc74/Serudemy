@@ -25,13 +25,22 @@ namespace Application.Implementations
 
         public IQueryable<StudentCourseDTO> GetAllStudentCourses()
         {
-            var entities = _manager.StudentCourse.FindAll(false);
+            var entities = _manager.StudentCourse
+                .FindAll(false)
+                .Include(c => c.Account)
+                .Include(c => c.Courses);
+
             return _mapper.ProjectTo<StudentCourseDTO>(entities);
         }
-
+       
         public StudentCourseDTO GetStudentCourseById(int id)
         {
-            var entity = _manager.StudentCourse.FindByCondition(sc => sc.Id == id, false);
+            var entity = _manager.StudentCourse
+                .FindAllByCondition(sc => sc.Id == id, false)
+                .Include(c => c.Account)
+                .Include(c => c.Courses)
+                .FirstOrDefault();
+
             return _mapper.Map<StudentCourseDTO>(entity);
         }
 
@@ -39,15 +48,17 @@ namespace Application.Implementations
         {
             var entities = _manager.StudentCourse
                 .FindAllByCondition(x => x.AccountId == studentId, false)
-                .Include(c => c.Courses);
+                .Include(c => c.Courses)
+                .Include(a => a.Account);
 
             return _mapper.ProjectTo<StudentCourseDTO>(entities);
         }
+       
 
         public IQueryable<StudentCourseDTO> GetStudentsByCourse(int courseId)
         {
             var entities = _manager.StudentCourse
-                .FindAllByCondition(x => x.CoursesId == courseId, false)
+                .FindAllByCondition(x => x.CourseId == courseId, false)
                 .Include(a => a.Account);
 
             return _mapper.ProjectTo<StudentCourseDTO>(entities);
@@ -57,7 +68,7 @@ namespace Application.Implementations
         {
             var entity = _mapper.Map<StudentCourse>(dto);
             entity.AccountId = studentId;
-            entity.CoursesId = courseId;
+            entity.CourseId = courseId;
             entity.CourseCompleted = false;
             entity.EnrolledAt = dto.EnrolledAt ?? DateTime.Now;
             
@@ -105,7 +116,7 @@ namespace Application.Implementations
         public bool IsStudentEnrolledInCourse(int studentId, int courseId)
         {
             var entity = _manager.StudentCourse
-                .FindByCondition(x => x.AccountId == studentId && x.CoursesId == courseId, false);
+                .FindByCondition(x => x.AccountId == studentId && x.CourseId == courseId, false);
             return entity != null;
         }
 
@@ -114,7 +125,7 @@ namespace Application.Implementations
             if (!IsStudentEnrolledInCourse(studentId, courseId))
                 return false;
 
-            var entity = _manager.StudentCourse.FindByCondition(x => x.CoursesId == courseId && x.AccountId == studentId, false);
+            var entity = _manager.StudentCourse.FindByCondition(x => x.CourseId == courseId && x.AccountId == studentId, false);
             if (entity != null)
             {
                 _manager.StudentCourse.Delete(entity);

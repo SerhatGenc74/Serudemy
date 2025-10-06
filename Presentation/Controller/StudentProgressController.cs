@@ -49,6 +49,13 @@ namespace Presentation.Controller
             var result = _service.StudentProgress.GetCompletedLessons(studentId, courseId);
             return Ok(result);
         }
+        [HttpGet("course/{courseId:int}/student/{studentId:int}/progress")]
+        public IActionResult GetStudentProgressInCourse([FromRoute(Name = "studentId")] int studentId, [FromRoute(Name = "courseId")] int courseId)
+        {
+            var progress = _service.StudentProgress.GetStudentProgressInCourse(studentId, courseId);
+            return Ok(progress);
+        }
+
 
         [HttpGet("student/{studentId:int}/course/{courseId:int}/completed/count")]
         public IActionResult GetCompletedLessonCount([FromRoute(Name = "studentId")] int studentId, [FromRoute(Name = "courseId")] int courseId)
