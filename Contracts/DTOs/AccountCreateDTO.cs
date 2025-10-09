@@ -35,7 +35,5 @@ namespace Contracts.DTOs
         public int? GradeLevel { get; init; }
 
         public int? DepartmentId { get; init; }
-        public List<int>? RoleIds { get; init; }
-        public DepartmentDTO? Department { get; init; }
     }
 }

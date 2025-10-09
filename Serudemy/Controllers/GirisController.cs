@@ -34,20 +34,7 @@ namespace Serudemy.Controllers
 
                 httpContextAccessor.HttpContext.SignInAsync(principal);
 
-                var RoleId = claims.FirstOrDefault(c => c.Type == "Role")?.Value;
-                var Role = int.Parse(RoleId);
-                if (Role == 3)
-                {
-                    return RedirectToAction("Index", "Dashboard");
-                }
-                if (Role == 2)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                if (Role == 4)
-                {
-                    return RedirectToAction("Index", "Admin");
-                }
+                
                 return View();
                 
             }

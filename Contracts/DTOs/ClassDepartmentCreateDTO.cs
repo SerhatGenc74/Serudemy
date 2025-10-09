@@ -15,8 +15,5 @@ namespace Contracts.DTOs
 
         public int? ClassId { get; init; }
 
-        public  ClassDTO? Class { get; init; }
-
-        public DepartmentDTO? Department { get; init; }
     }
 }

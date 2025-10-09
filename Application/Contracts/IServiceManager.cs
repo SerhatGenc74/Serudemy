@@ -22,5 +22,6 @@ namespace Application.Contracts
         public IClassDepartmentService ClassDepartmentService { get; }
         public ICategoryService CategoryService { get; }
         public IStudentClassService StudentClassService { get; }
+        public IAuthService AuthService { get; }
     }
 }

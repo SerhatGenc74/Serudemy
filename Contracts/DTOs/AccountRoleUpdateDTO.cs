@@ -10,8 +10,6 @@ namespace Contracts.DTOs
     {
         public int? RoleId { get; init; }
         public int? AccountId { get; init; }
-        public AccountDTO? Account { get; init; }
-        public RoleDTO? Role { get; init; }
 
     }
 }

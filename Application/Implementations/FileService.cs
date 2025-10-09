@@ -59,9 +59,12 @@ namespace Application.Implementations
                 {
                     await file.CopyToAsync(stream);
                 }
-                return filePath;
+
+                var dbPath = Path.Combine("/images/", file.FileName);
+
+                return dbPath;
             }
-            return null;
+            return "";
         }
     }
 }

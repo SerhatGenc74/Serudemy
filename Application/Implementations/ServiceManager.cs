@@ -1,6 +1,8 @@
 ﻿using Application.Contracts;
 using AutoMapper;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Application.Implementations
 {
@@ -8,13 +10,17 @@ namespace Application.Implementations
     {
        private readonly IRepositoryManager _manager;
        private readonly IMapper _mapper;
-    
-       public ServiceManager(IRepositoryManager manager, IMapper mapper)
+       private readonly IHttpContextAccessor _httpcontext;
+       private readonly IConfiguration _configuration;
+        
+        public ServiceManager(IRepositoryManager manager, IMapper mapper, IHttpContextAccessor httpcontext, IConfiguration configuration)
        {
            _manager = manager;
            _mapper = mapper;
-    
-           FileService = new FileService(_manager);
+            _httpcontext = httpcontext;
+           _configuration = configuration;
+
+            FileService = new FileService(_manager);
            AccountService = new AccountService(_manager, _mapper);
            AccountRoleService = new AccountRoleService(_manager, _mapper);
            CourseService = new CourseService(_manager, _mapper);
@@ -28,9 +34,12 @@ namespace Application.Implementations
            ClassDepartmentService = new ClassDepartmentService(_manager, _mapper);
            CategoryService = new CategoryService(_manager, _mapper);
            StudentClassService = new StudentClassService(_manager, _mapper);
-       }
+           
+           AuthService = new AuthService(_manager, _mapper, _configuration);
+        }
        
        public IFileService FileService { get; }
+        public IAuthService AuthService { get; }
        public IAccountService AccountService { get; }
        public IAccountRoleService AccountRoleService { get; }
        public ICourseService CourseService { get; }
@@ -45,5 +54,4 @@ namespace Application.Implementations
        public ICategoryService CategoryService { get; }
        public IStudentClassService StudentClassService { get; }
     }
-
 }

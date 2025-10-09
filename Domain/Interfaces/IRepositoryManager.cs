@@ -23,6 +23,11 @@ namespace Domain.Interfaces
         IRepositoryBase<Class> Class { get; }
         IRepositoryBase<StudentCourse> StudentCourse { get; }
 
+        // Synchronous Save
         void Save();
+        
+        // Asynchronous Save
+        Task SaveAsync();
+        
     }
 }

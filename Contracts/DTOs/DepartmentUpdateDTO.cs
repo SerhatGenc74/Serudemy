@@ -13,6 +13,5 @@ namespace Contracts.DTOs
 
         public string? Name { get; init; }
 
-        public virtual FacultyDTO? Faculty { get; init; }
     }
 }

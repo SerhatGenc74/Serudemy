@@ -1,27 +1,49 @@
 using Application.Contracts;
 using Application.Implementations;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Presentation.Controller;
 using Serudemy.Utilities.AutoMapper;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<SerudemyContext>();
-builder.Services.AddAuthentication().AddCookie(options=>
-{
-    options.LoginPath = "/Giris/Index";
-    options.LogoutPath = "/Giris/Logout";
 
-});
+// JWT Configuration from appsettings.json
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(configureOptions =>
+    {
+        configureOptions.RequireHttpsMetadata = false;
+        configureOptions.SaveToken = true;
+        configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"])),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(CourseController).Assembly);
+
 
 // Add CORS services
 builder.Services.AddCors(options =>
@@ -68,14 +90,12 @@ app.UseCors("AllowReactApp"); // or "AllowAll" for development
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.UseEndpoints(endpoints => endpoints.MapControllers());
-
-
-
 
 app.MapControllerRoute(
     name: "default",

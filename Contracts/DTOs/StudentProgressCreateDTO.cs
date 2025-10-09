@@ -19,8 +19,6 @@ namespace Contracts.DTOs
         public byte[] LastUpdate { get; init; } = null!;
         public int WatchedSeconds { get; init; }
         public int PlaybackPosition { get; init; }
-        public AccountDTO? Account { get; init; }
-        public LectureDTO? Lecture { get; init; }
 
     }
 }
