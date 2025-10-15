@@ -43,7 +43,7 @@ namespace Application.Implementations
                 .FindAll(false)
                 .Include(l => l.Courses)
                 .Include(l => l.StudentProgresses);
-            
+
             return _mapper.ProjectTo<LectureDTO>(entity);
         }
 

@@ -13,6 +13,8 @@ namespace Application.Contracts
         public StudentCourseDTO GetStudentCourseById(int id);
         public IQueryable<StudentCourseDTO> GetCoursesByStudent(int studentId);
         public IQueryable<StudentCourseDTO> GetStudentsByCourse(int courseId);
+        public IQueryable<StudentCourseDTO> GetStudentCoursesByCourse(int courseId);
+        public IQueryable<object> GetEligibleStudentsForCourse(int courseId);
         public StudentCourseDTO EnrollStudentInCourse(int studentId, int courseId, StudentCourseCreateDTO dto);
         public StudentCourseDTO CreateStudentCourse(StudentCourseCreateDTO dto);
         public StudentCourseDTO UpdateStudentCourse(StudentCourseUpdateDTO dto, int id);

@@ -8,8 +8,7 @@ namespace Contracts.DTOs
 {
     public record CourseUpdateDTO
     {
-        public int CourseId { get; init; }
-
+        public int? ID { get; init; }
         public int? CourseOwnerId { get; init; }
 
         public string? Name { get; init; }

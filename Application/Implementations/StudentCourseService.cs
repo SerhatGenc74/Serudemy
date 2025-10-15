@@ -117,7 +117,11 @@ namespace Application.Implementations
         {
             var entity = _manager.StudentCourse
                 .FindByCondition(x => x.AccountId == studentId && x.CourseId == courseId, false);
-            return entity != null;
+            if (entity != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool UnenrollStudentFromCourse(int studentId, int courseId)
@@ -133,6 +137,51 @@ namespace Application.Implementations
                 return true;
             }
             return false;
+        }
+
+        public IQueryable<StudentCourseDTO> GetStudentCoursesByCourse(int courseId)
+        {
+            var entities = _manager.StudentCourse
+                .FindAllByCondition(x => x.CourseId == courseId, false)
+                .Include(c => c.Account)
+                .Include(c => c.Courses);
+
+            return _mapper.ProjectTo<StudentCourseDTO>(entities);
+        }
+
+        public IQueryable<object> GetEligibleStudentsForCourse(int courseId)
+        {
+            // Önce kurs bilgilerini al
+            var course = _manager.Course.FindByCondition(c => c.CourseId == courseId, false);
+
+            if (course == null)
+                throw new ArgumentException("Course not found");
+
+            // Sadece rolü 'students' olan ve grade/department uygun olanları getir
+            var eligibleStudents = _manager.Account
+                .FindAllByCondition(a => a.GradeLevel == course.TargetGradeLevel && 
+                                        a.DepartmentId == course.TargetDepartmentId, false)
+                .Join(_manager.AccountRole.FindAll(false),
+                      a => a.Id,
+                      ar => ar.AccountId,
+                      (a, ar) => new { Account = a, AccountRole = ar })
+                .Join(_manager.Role.FindAll(false),
+                      aar => aar.AccountRole.RoleId,
+                      r => r.Id,
+                      (aar, r) => new { aar.Account, Role = r })
+                .Where(x => x.Role.Name == "Öğrenci")
+                .Select(s => new
+                {
+                    id = s.Account.Id,
+                    firstName = s.Account.Name,
+                    lastName = s.Account.Surname,
+                    email = s.Account.UserEmail,
+                    studentNumber = s.Account.Userno,
+                    gradeLevel = s.Account.GradeLevel,
+                    departmentId = s.Account.DepartmentId
+                });
+
+            return eligibleStudents;
         }
     }
 }

@@ -1,50 +1,201 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
-import '../../styles/EditCourse.css'; // CSS dosyasını içe aktar
+import useCurrentAccountId from "../../hooks/useAccountId";
+import '../../styles/CreateCourse.css'; // Aynı CSS'i kullanabiliriz
 
 const EditCourse = () => {
-
     const params = useParams();
-    const {data:course,loading,error} = useFetch(`http://localhost:5225/api/Course/${params.courseId}`);
+    const navigate = useNavigate();
+    const accountId = useCurrentAccountId();
+    const {data: course, loading, error} = useFetch(`http://localhost:5225/api/Course/${params.courseId}`);
+    const {data: departments} = useFetch('http://localhost:5225/api/department');
 
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [image ,setImage] = useState(null);
+    const [formData, setFormData] = useState({
+        name: "",
+        description: "",
+        imageUrl: "",
+        targetDepartmentId: "",
+        targetGradeLevel: ""
+    });
+
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState("");
+
+    // Course data geldiğinde formData'yı güncelle
+    useEffect(() => {
+        if (course) {
+            setFormData({
+                name: course.name || "",
+                description: course.description || "",
+                imageUrl: course.imageUrl || "",
+                targetDepartmentId: course.targetDepartmentId || "",
+                targetGradeLevel: course.targetGradeLevel || ""
+            });
+        }
+    }, [course]);
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // File size kontrolü (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Dosya boyutu 5MB\'dan küçük olmalıdır');
+                return;
+            }
+            
+            // File type kontrolü
+            if (!file.type.startsWith('image/')) {
+                alert('Lütfen geçerli bir resim dosyası seçin');
+                return;
+            }
+            
+            setSelectedFile(file);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitMessage('');
+        
+        try {
+            let imageUrl = formData.imageUrl;
+            
+            // Yeni dosya seçilmişse güncelle
+            if (selectedFile) {
+                console.log('Dosya güncelleniyor:', selectedFile.name);
+                const fileFormData = new FormData();
+                fileFormData.append('file', selectedFile);
+                
+                // Existing file path query parameter olarak gönder
+                const existingFilePath = formData.imageUrl || '';
+                const updateUrl = `http://localhost:5225/api/file/update?existingFilePath=${encodeURIComponent(existingFilePath)}`;
+                
+                const fileResponse = await fetch(updateUrl, {
+                    method: 'PUT',
+                    body: fileFormData
+                });
+                
+                if (fileResponse.ok) {
+                    const fileResult = await fileResponse.json();
+                    imageUrl = fileResult.filePath;
+                    console.log('Dosya güncellendi:', fileResult);
+                } else {
+                    throw new Error('Dosya güncelleme başarısız');
+                }
+            }
+            
+            // Kursu güncelle
+            const submitData = {
+                courseId: course.courseId, // Include CourseId from the fetched course data
+                name: formData.name,
+                description: formData.description,
+                imageUrl: imageUrl,
+                targetDepartmentId: parseInt(formData.targetDepartmentId),
+                targetGradeLevel: parseInt(formData.targetGradeLevel),
+                updatedAt: new Date().toISOString()
+            };
+            
+            console.log('Kurs güncelleme verisi:', submitData);
+
+            const response = await fetch(`http://localhost:5225/api/Course/${course.courseId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(submitData)
+            });
+            
+            if (response.ok) {
+                setSubmitMessage('✅ Kurs başarıyla güncellendi!');
+                setTimeout(() => {
+                    navigate('/instructor/dashboard');
+                }, 2000);
+            } else {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Kurs güncellenirken bir hata oluştu.');
+            }
+        } catch (error) {
+            console.error('Error updating course:', error);
+            setSubmitMessage(`❌ Hata: ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (loading) return (
+        <div className="create-course-container">
+            <div className="loading-container">
+                <div className="loading-spinner">🔄</div>
+                <div className="loading-text">Kurs bilgileri yükleniyor...</div>
+            </div>
+        </div>
+    );
     
+    if (error || !course) return (
+        <div className="create-course-container">
+            <div className="error-container">
+                <div className="error-text">❌ Hata: {error?.message || 'Kurs bulunamadı'}</div>
+                <button 
+                    className="btn btn-cancel"
+                    onClick={() => navigate('/instructor/dashboard')}
+                >
+                    ← Dashboard'a Dön
+                </button>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="edit-course-container">
-            <div className="edit-course-card">
-                <div className="edit-course-header">
-                    <h1 className="edit-course-title">✏️ Kurs Düzenle</h1>
-                    <p className="edit-course-subtitle">Kurs bilgilerini güncelleyin ve değişiklikleri kaydedin</p>
+        <div className="create-course-container">
+            <div className="create-course-card">
+                <div className="create-course-header">
+                    <h1 className="create-course-title">✏️ Kurs Düzenle</h1>
+                    <p className="create-course-subtitle">Kurs bilgilerini güncelleyin ve değişiklikleri kaydedin</p>
                 </div>
                 
-                <div className="edit-course-content">
+                <div className="create-course-content">
                     <div className="form-section">
-                        <form className="edit-course-form" onSubmit={(e)=> {
-                            e.preventDefault();
-                            alert(`Kurs güncellendi!\nAd: ${name}\nAçıklama: ${description}\nResim: ${image ? image.name : "Seçilmedi"}`);
-                        }}>
+                        <h2 className="form-section-title">📝 Kurs Bilgileri</h2>
+                        
+                        {submitMessage && (
+                            <div className={`${submitMessage.includes('✅') ? 'success-message' : 'error-message'}`}>
+                                {submitMessage}
+                            </div>
+                        )}
+                        
+                        <form onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <label className="form-label">📚 Kurs Adı</label>
+                                <label className="form-label">📚 Kurs Başlığı</label>
                                 <input 
-                                    className="form-input"
-                                    onChange={(e) => setName(e.target.value)}  
                                     type="text" 
-                                    placeholder="Kurs adını girin..." 
-                                    value={course?.name || name}
+                                    className="form-input"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="Örn: React ile Web Geliştirme" 
+                                    required
                                 />
                             </div>
                             
                             <div className="form-group">
-                                <label className="form-label">📝 Kurs Açıklaması</label>
+                                <label className="form-label">📄 Kurs Açıklaması</label>
                                 <textarea 
                                     className="form-textarea"
-                                    onChange={(e) => setDescription(e.target.value)} 
-                                    placeholder="Kurs hakkında detaylı açıklama yazın..."
-                                    value={course?.description || description}
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    placeholder="Kursunuz hakkında detaylı bilgi verin..."
+                                    required
                                 ></textarea>
                             </div>
                             
@@ -52,57 +203,153 @@ const EditCourse = () => {
                                 <label className="form-label">🖼️ Kurs Görseli</label>
                                 <div className="file-input-wrapper">
                                     <input 
-                                        className="file-input"
                                         type="file" 
+                                        className="file-input"
                                         accept="image/*"
-                                        onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)} 
+                                        id="course-image-input"
+                                        onChange={handleFileChange}
                                     />
-                                    <div className="file-input-label">
-                                        <span>📁</span>
-                                        <span>{course?.imageUrl ? course.imageUrl : "Görsel seçin veya sürükleyin"}</span>
-                                    </div>
+                                    <label htmlFor="course-image-input" className="file-input-label">
+                                        <span className="file-input-icon">📁</span>
+                                        <div>
+                                            <div>
+                                                {selectedFile 
+                                                    ? selectedFile.name 
+                                                    : (formData.imageUrl 
+                                                        ? "Mevcut görsel (değiştirmek için seçin)" 
+                                                        : "Görsel seçin"
+                                                    )
+                                                }
+                                            </div>
+                                            <small style={{opacity: 0.7}}>PNG, JPG veya JPEG formatında</small>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
                             
-                            <button className="submit-btn" type="submit">
-                                💾 Değişiklikleri Kaydet
-                            </button>
+                            <div className="form-group">
+                                <label className="form-label">🏫 Bölüm</label>
+                                <select 
+                                    className="form-select"
+                                    name="targetDepartmentId"
+                                    value={formData.targetDepartmentId}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Bölüm seçin</option>
+                                    {departments && departments.map(department => (
+                                        <option key={department.id} value={department.id}>
+                                            {department.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">🎯 Hedef Seviye</label>
+                                <select 
+                                    className="form-select"
+                                    name="targetGradeLevel"
+                                    value={formData.targetGradeLevel}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Seviye seçin</option>
+                                    <option value="1">1. Sınıf</option>
+                                    <option value="2">2. Sınıf</option>
+                                    <option value="3">3. Sınıf</option>
+                                    <option value="4">4. Sınıf</option>
+                                </select>
+                            </div>
+                            
+                            <div className="form-actions">
+                                <button
+                                    type="button"
+                                    className="btn btn-cancel"
+                                    onClick={() => navigate('/instructor/dashboard')}
+                                    disabled={isSubmitting}
+                                >
+                                    ❌ İptal
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-submit"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="loading-spinner">🔄</span>
+                                            Güncelleniyor...
+                                        </>
+                                    ) : (
+                                        <>✅ Kursu Güncelle</>
+                                    )}
+                                </button>
+                            </div>
                         </form>
                     </div>
-                    
+
+                    {/* Preview Section */}
                     <div className="preview-section">
-                        <h3 className="preview-title">
-                            👁️ Önizleme
-                        </h3>
-                        
-                        <div className="preview-item">
-                            <div className="preview-label">Kurs Adı:</div>
-                            <div className="preview-value">{name || "Henüz girilmedi"}</div>
-                        </div>
-                        
-                        <div className="preview-item">
-                            <div className="preview-label">Açıklama:</div>
-                            <div className="preview-value">{description || "Henüz girilmedi"}</div>
-                        </div>
-                        
-                        <div className="image-preview">
-                            {image ? (
-                                <img 
-                                    src={URL.createObjectURL(image)} 
-                                    alt="Kurs Görseli" 
-                                    className="preview-image"
-                                />
-                            ) : (
-                                <div className="no-image-placeholder">
-                                    🖼️<br />
-                                    Görsel seçilmedi
+                        <h2 className="form-section-title">👁️ Ön İzleme</h2>
+                        <div className="course-preview-card">
+                            <div className="course-preview-image">
+                                {(selectedFile || formData.imageUrl) ? (
+                                    <img 
+                                        src={selectedFile ? URL.createObjectURL(selectedFile) : `http://localhost:5225${formData.imageUrl}`}
+                                        alt="Kurs görseli"
+                                        style={{
+                                            width: '100%',
+                                            height: '200px',
+                                            objectFit: 'cover',
+                                            borderRadius: '12px'
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="placeholder-image">
+                                        <span style={{fontSize: '48px', opacity: 0.5}}>🖼️</span>
+                                        <p style={{margin: '10px 0 0 0', opacity: 0.7}}>Görsel yüklenmedi</p>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="course-preview-content">
+                                <h3 className="course-preview-title">
+                                    {formData.name || "Kurs başlığı..."}
+                                </h3>
+                                
+                                <p className="course-preview-description">
+                                    {formData.description || "Kurs açıklaması..."}
+                                </p>
+                                
+                                <div className="course-preview-details">
+                                    <div className="preview-detail-item">
+                                        <span className="detail-label">🏫 Bölüm:</span>
+                                        <span className="detail-value">
+                                            {formData.targetDepartmentId ? 
+                                                departments?.find(d => d.id === parseInt(formData.targetDepartmentId))?.name || "Bölüm seçin"
+                                                : "Bölüm seçin"
+                                            }
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="preview-detail-item">
+                                        <span className="detail-label">🎯 Seviye:</span>
+                                        <span className="detail-value">
+                                            {formData.targetGradeLevel ? 
+                                                `${formData.targetGradeLevel}. Sınıf` 
+                                                : "Seviye seçin"
+                                            }
+                                        </span>
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
+
 export default EditCourse;

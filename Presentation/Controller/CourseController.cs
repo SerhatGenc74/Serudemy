@@ -35,10 +35,10 @@ namespace Presentation.Controller
             return Ok(number);
         }
 
-        [HttpGet("{id:int}")]
-        public IActionResult GetCourseById([FromRoute(Name = "id")] int id)
+        [HttpGet("{courseId:int}")]
+        public IActionResult GetCourseById([FromRoute(Name = "courseId")] int courseId)
         {
-            var course = _service.CourseService.GetCourse(id);
+            var course = _service.CourseService.GetCourse(courseId);
             if (course == null)
                 return NotFound();
             return Ok(course);
@@ -65,13 +65,22 @@ namespace Presentation.Controller
             return Ok(course);
         }
 
-        [HttpPut("{id:int}")]
-        public IActionResult UpdateCourse([FromRoute(Name = "id")] int id, [FromBody] CourseUpdateDTO dto)
+        [HttpPut("{courseId:int}")]
+        public IActionResult UpdateCourse([FromRoute(Name = "courseId")] int courseId, [FromBody] CourseUpdateDTO dto)
         {
-            var course = _service.CourseService.UpdateCourse(id, dto);
-            if (course == null)
-                return NotFound();
-            return Ok(course);
+            try
+            {
+                var course = _service.CourseService.UpdateCourse(courseId, dto);
+                return Ok(course);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id:int}")]

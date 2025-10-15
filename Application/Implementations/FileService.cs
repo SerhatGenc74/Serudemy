@@ -36,33 +36,63 @@ namespace Application.Implementations
             return permittedExtensions.Contains(extension);
         }
 
-        public async Task<bool> UpdateFile(IFormFile file, string existingFilePath)
+        public async Task<string?> UpdateFile(IFormFile file, string existingFilePath)
         {
-            if (File.Exists(existingFilePath))
+            try
             {
-                File.Delete(existingFilePath);
-            }
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-            return true;
-        }
-
-        public async Task<string> UploadFileAsync(IFormFile file)
-        {
-            if (file != null && file.Length > 0)
-            {
+                // Delete existing file if it exists
+                if (!string.IsNullOrEmpty(existingFilePath))
+                {
+                    var fullExistingPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingFilePath.TrimStart('/'));
+                    if (File.Exists(fullExistingPath))
+                    {
+                        File.Delete(fullExistingPath);
+                    }
+                }
+                
+                // Save new file
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
-
+                
+                // Return the database path
                 var dbPath = Path.Combine("/images/", file.FileName);
-
                 return dbPath;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<string> UploadFileAsync(IFormFile file)
+        {
+            var extension = Path.GetExtension(file.FileName);
+            if (file != null && file.Length > 0)
+            {
+                if (extension == ".mp4")
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                    var dbPath = Path.Combine("/videos/", file.FileName);
+                    return dbPath;
+                }
+                else
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                    var dbPath = Path.Combine("/images/", file.FileName);
+                    return dbPath;
+                }
+               
             }
             return "";
         }

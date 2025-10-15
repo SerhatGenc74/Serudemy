@@ -97,13 +97,24 @@ namespace Application.Implementations
             return _mapper.ProjectTo<CourseDTO>(entity);
         }
 
-        public CourseDTO UpdateCourse(int id, CourseUpdateDTO dto)
+        public CourseDTO UpdateCourse(int courseId, CourseUpdateDTO dto)
         {
-            var course = _manager.Course.FindByCondition(u=>u.Id == id,false);
+            // Use trackChanges: true to keep the entity tracked by the context
+            var course = _manager.Course.FindByCondition(u => u.CourseId == courseId, true);
+            
+            if (course == null)
+                throw new ArgumentException($"Course with CourseId {courseId} not found.");
 
-            _mapper.Map(dto,course);
+            // Map the DTO properties to the existing tracked entity
+            // Don't overwrite CourseId as it's the primary key
+            course.Name = dto.Name;
+            course.Description = dto.Description;
+            course.ImageUrl = dto.ImageUrl;
+            course.TargetDepartmentId = dto.TargetDepartmentId;
+            course.TargetGradeLevel = dto.TargetGradeLevel;
+            course.UpdatedAt = dto.UpdatedAt ?? DateTime.Now;
 
-            _manager.Course.Update(course);
+            // No need to call Update() on tracked entities - just save changes
             _manager.Save();
 
             return _mapper.Map<CourseDTO>(course);

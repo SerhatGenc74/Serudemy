@@ -1,14 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const useFetch = (URL) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [refetchFlag, setRefetchFlag] = useState(0);
+    
+    const refetch = useCallback(() => {
+        setRefetchFlag(prev => prev + 1);
+    }, []);
     
     useEffect(() => {
         const contAbort = new AbortController();
         
         const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            
             try {
                 const response = await fetch(URL, {
                     signal: contAbort.signal
@@ -38,9 +46,9 @@ const useFetch = (URL) => {
         return () => {
             contAbort.abort();
         };
-    }, [URL]);
+    }, [URL, refetchFlag]);
 
-    return { data, loading, error };
+    return { data, loading, error, refetch };
 };
 
 export default useFetch;

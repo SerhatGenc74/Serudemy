@@ -82,7 +82,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 // Add CORS middleware (must be before UseRouting)
 app.UseCors("AllowReactApp"); // or "AllowAll" for development

@@ -2,13 +2,18 @@ import useFetch from '../../hooks/useFetch';
 import { useState } from 'react';
 import '../../styles/CreateCourse.css';
 import useCurrentAccountId from '../../hooks/useAccountId';
+import { Link, useNavigate } from 'react-router-dom';
 const CreateCourse = () => {
 
+    
+    // Tüm hook'lar component'in en üstünde olmalı
     const [submitMessage,setSubmitMessage] = useState("");
     const [isSubmitting,setIsSubmitting] = useState(false);
     const [selectedFile,setSelectedFile] = useState(null);
+    const accountId = useCurrentAccountId();
+    const navigate = useNavigate();
     const {data:departments,loading,error} = useFetch('http://localhost:5225/api/department');
-    const {data : randomnumber} = useFetch('http://localhost:5225/api/course/random');
+    const {data : randomnumber} = useFetch('http://localhost:5225/api/Course/random');
 
      const [formData,setFormData] = useState({
         
@@ -18,13 +23,11 @@ const CreateCourse = () => {
         image : "",
         targetDepartmentId : "",
         targetGradeLevel : "",
-        courseOwnerID : 9002,
+        courseOwnerID : accountId, // accountId varsa onu kullan, yoksa default 9002
         createdAt : new Date().toISOString(),
         updatedAt : new Date().toISOString()
 
     })
-
-   const accountId = useCurrentAccountId();
     
  const handleSubmit = async (e) => {
         e.preventDefault();
@@ -72,7 +75,7 @@ const CreateCourse = () => {
 
             console.log('Kurs oluşturma verisi:', submitData);
 
-            const response = await fetch('http://localhost:5225/api/course/create', {
+            const response = await fetch('http://localhost:5225/api/Course/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -95,10 +98,12 @@ const CreateCourse = () => {
                     categoryId: "",
                     targetDepartmentId: "",
                     targetGradeLevel: "",
-                    courseOwnerID: 9002,
+                    courseOwnerID: accountId,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 });
+                setSelectedFile(null);
+                navigate(`/course/${randomnumber}/lessons`);
             } 
             else 
             {
@@ -215,15 +220,16 @@ const CreateCourse = () => {
                                         className="file-input"
                                         accept="image/*"
                                         name='image'
-                                        onChange={handleFileChange} 
+                                        id="course-image-input"
+                                        onChange={handleFileChange}
                                     />
-                                    <div className="file-input-label">
+                                    <label htmlFor="course-image-input" className="file-input-label">
                                         <span className="file-input-icon">📁</span>
                                         <div>
-                                            <div>{formData.image ? formData.image.name : "Görsel seçin"}</div>
+                                            <div>{formData.image || "Görsel seçin"}</div>
                                             <small style={{opacity: 0.7}}>PNG, JPG veya JPEG formatında</small>
                                         </div>
-                                    </div>
+                                    </label>
                                 </div>
                             </div>
                             

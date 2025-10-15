@@ -2,20 +2,49 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import '../../styles/InstructorDashboard.css';
+import useCurrentAccountId from '../../hooks/useAccountId';
 
 const InstructorDashboard = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
-
+    const [lectureCount, setLectureCount] = useState({});
+    const accountId = useCurrentAccountId();
     // Eğitmen verilerini çek
-    const { data: instructorCourses, loading: coursesLoading, error: coursesError } = useFetch( `http://localhost:5225/api/Course/by-instructor/6` );
+    const { data: instructorCourses, loading: coursesLoading, error: coursesError } = useFetch( `http://localhost:5225/api/Course/by-instructor/${accountId}` ); 
+    
+    // Her kurs için ders sayısını al
+    useEffect(() => {
+        if (instructorCourses && instructorCourses.length > 0) {
+            const fetchLectureCounts = async () => {
+                const counts = {};
+                for (const course of instructorCourses) {
+                    try {
+                        const response = await fetch(`http://localhost:5225/api/Lecture/course/${course.courseId}`);
+                        if (response.ok) {
+                            const lectures = await response.json();
+                            counts[course.courseId] = lectures ? lectures.length : 0;
+                        } else {
+                            counts[course.courseId] = 0;
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching lectures for course ${course.courseId}:`, error);
+                        counts[course.courseId] = 0;
+                    }
+                }
+                setLectureCount(counts);
+            };
+            
+            fetchLectureCounts();
+        }
+    }, [instructorCourses]);
+    
     // Mock data (API hazır olana kadar)
     const mockStats = {
         totalCourses: instructorCourses ? instructorCourses.length : 0,
         totalStudents: 1250,
         totalRevenue: 15750,
         averageRating: 4.7,
-        totalLectures: 45,
+        totalLectures: Object.values(lectureCount).reduce((sum, count) => sum + count, 0),
         totalHours: 32
     };
 
@@ -37,9 +66,9 @@ const InstructorDashboard = () => {
             default: return 'Bilinmiyor';
         }
     };
-
-
+    
    
+  
 
     return (
         <div className="instructor-dashboard">
@@ -49,7 +78,7 @@ const InstructorDashboard = () => {
                 <div className="dashboard-header">
                     <div className="header-content">
                         <div className="welcome-section">
-                            <h1>Hoş geldiniz, serhat!</h1>
+                            <h1>Hoş geldiniz, SERHAT!</h1>
                             <p>Eğitmen paneline erişiminiz bulunmaktadır</p>
                         </div>
                         <div className="header-actions">
@@ -111,7 +140,6 @@ const InstructorDashboard = () => {
                         </div>
                     </div>
                 </div>
-
                 {/* Main Content */}
                 <div className="dashboard-content">
                     {/* Navigation Tabs */}
@@ -224,9 +252,7 @@ const InstructorDashboard = () => {
                                         <thead>
                                             <tr>
                                                 <th>Kurs</th>
-                                                <th>Öğrenci</th>
-                                                <th>Kazanç</th>
-                                                <th>Puan</th>
+                                                <th></th>
                                                 <th>Durum</th>
                                                 <th>İşlemler</th>
                                             </tr>
@@ -250,37 +276,29 @@ const InstructorDashboard = () => {
                                                     <tr key={course.courseId}>
                                                         <td>
                                                             <div className="course-info">
-                                                                <img 
-                                                                    src={course.imageUrl || '/images/default-course.jpg'} 
-                                                                    alt={course.title || course.name}
-                                                                    className="course-thumbnail"
-                                                                />
+                                                               
+                                                                    <img 
+                                                                        src={course.ImageUrl || '/images/default-course.jpg'} 
+                                                                        alt={course.title || course.name}
+                                                                        className="course-thumbnail"
+                                                                    />
+                                                               
                                                                 <div>
                                                                     <h4>{course.title || course.name}</h4>
                                                                     <p>{course.description}</p>
-                                                                    <span className="course-meta">
-                                                                        {course.lectureCount || 0} ders • ₺{course.price || 0}
-                                                                    </span>
+                                                                    <div className="course-meta">
+                                                                        <span className="lecture-count">
+                                                                            📚 {lectureCount[course.courseId] || 0} ders
+                                                                        </span>
+                                                                        <span className="course-category">
+                                                                            🏷️ {course.categoryName || 'Kategori yok'}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <Link to={`/course/${course.courseId}/students`} className="student-link">
-                                                            <span className="student-count">
-                                                                {course.studentCount || 0} öğrenci
-                                                            </span>
-                                                            </Link>
-                                                        </td>
-                                                        <td>
-                                                            <span className="revenue">
-                                                                ₺{course.revenue || 0}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div className="rating">
-                                                                <i className="fas fa-star"></i>
-                                                                {course.rating || 0}
-                                                            </div>
+                                                            
                                                         </td>
                                                         <td>
                                                             <span 
@@ -313,12 +331,21 @@ const InstructorDashboard = () => {
                                                                 >
                                                                     <i className="fas fa-video"></i>
                                                                 </Link>
-                                                                <button 
-                                                                    className="action-btn analytics"
-                                                                    title="Analitik"
+                                                                <Link 
+                                                                    to={`/course/${course.courseId}/students`}
+                                                                    className="action-btn students"
+                                                                    title="Öğrencileri Yönet"
                                                                 >
                                                                     <i className="fas fa-chart-bar"></i>
-                                                                </button>
+                                                                </Link>
+                                                                <Link 
+                                                                    to={`/course/${course.courseId}/enroll-students`}
+                                                                    className="action-btn enroll"
+                                                                    title="Öğrenci Kayıt"
+                                                                >
+                                                                    <i className="fas fa-user-plus"></i>
+                                                                </Link>
+                                                                
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -486,7 +513,7 @@ const InstructorDashboard = () => {
                                                             </div>
                                                         </td>
                                                         <td>4.7</td>
-                                                        <td>₺15,600</td>
+                                                        <td>₺15,00</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

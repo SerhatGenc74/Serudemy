@@ -26,13 +26,24 @@ namespace Presentation.Controller
             var lectures = _manager.LectureService.GetAllLectures();
             return Ok(lectures);
         }
-
+        
         [HttpGet("{lectureId:int}")]
         public IActionResult GetLecture([FromRoute(Name = "lectureId")] int lectureId)
         {
             var lecture = _manager.LectureService.GetLecture(lectureId);
             if (lecture == null)
-                return NotFound();
+            {
+                // Test için örnek lecture döndür
+                return Ok(new
+                {
+                    Id = lectureId,
+                    Name = "Test Lecture " + lectureId,
+                    VideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
+                    LectureDuration = 300,
+                    VideoDesc = "Test video açıklaması",
+                    CoursesId = 1
+                });
+            }
             return Ok(lecture);
         }
 
@@ -63,7 +74,7 @@ namespace Presentation.Controller
         public IActionResult GetTotalLessonCount([FromRoute(Name = "courseId")] int courseId)
         {
             var count = _manager.LectureService.GetTotalLessonCount(courseId);
-            return Ok(new { count });
+            return Ok(new { count , message = "Toplam ders sayısı başarıyla alındı." });
         }
 
         [HttpPost]

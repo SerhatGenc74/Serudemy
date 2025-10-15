@@ -1,13 +1,16 @@
 import { useParams } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
+import ReactPlayer from "react-player";
 import '../../styles/Video.css';
 
 const Video = () => {
     const param = useParams();
     const { data: lecture, loading, error } = useFetch(`http://localhost:5225/api/Lecture/${param.lectureId}`);
     const {data:alllectures,loading:alllecturesloading,error:alllectureserror} = useFetch(`http://localhost:5225/api/Lecture/course/${param.courseId}`);
-    
+
+
     if (loading || alllecturesloading) return (
         <div className="video-page-container">
             <div className="loading-state">
@@ -53,24 +56,17 @@ const Video = () => {
                             </div>
                             <div className="meta-item">
                                 <span>⏱️</span>
-                                <span>{lecture?.lectureDuration || 5} dakika</span>
-                            </div>
-                            <div className="meta-item">
-                                <span>👁️</span>
-                                <span>1,234 görüntülenme</span>
+                                <span>{(lecture?.lectureDuration / 60).toFixed(2)} dakika </span>
                             </div>
                         </div>
                     </div>
 
                     <div className="video-wrapper">
-                        <video 
-                            className="video-player" 
-                            controls 
-                            poster="/api/placeholder/800/450"
-                        >
-                            <source src={lecture?.videoUrl || lecture?.lectureId} type="video/mp4" />
+                       <video width="640" controls>
+                            <source src={`http://localhost:5225${lecture?.VideoUrl}`} type="video/mp4" />
                             Tarayıcınız video etiketini desteklemiyor.
                         </video>
+
                     </div>
 
                     <div className="video-controls">

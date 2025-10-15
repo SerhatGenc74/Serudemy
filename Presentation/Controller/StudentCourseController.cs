@@ -51,14 +51,59 @@ namespace Presentation.Controller
             return Ok(students);
         }
 
-        [HttpPost("enroll")]
-        public IActionResult EnrollStudentInCourse([FromQuery] int studentId, [FromQuery] int courseId, [FromBody] StudentCourseCreateDTO dto)
+        [HttpGet("course/{courseId:int}")]
+        public IActionResult GetStudentCoursesByCourse([FromRoute(Name = "courseId")] int courseId)
         {
-            var result = _service.StudentCourse.EnrollStudentInCourse(studentId, courseId, dto);
-            if (result == null)
-                return BadRequest("Enrollment failed.");
+            var studentCourses = _service.StudentCourse.GetStudentCoursesByCourse(courseId);
+            return Ok(studentCourses);
+        }
 
-            return CreatedAtAction(nameof(GetStudentCourseById), new { id = result.Id }, result);
+        [HttpGet("eligible-students")]
+        public IActionResult GetEligibleStudentsForCourse([FromQuery] int courseId)
+        {
+            try
+            {
+                var eligibleStudents = _service.StudentCourse.GetEligibleStudentsForCourse(courseId);
+                return Ok(eligibleStudents);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error getting eligible students: {ex.Message}");
+            }
+        }
+
+        [HttpGet("is-enrolled")]
+        public IActionResult IsStudentEnrolledInCourse([FromQuery] int studentId, [FromQuery] int courseId)
+        {
+            try
+            {
+                var isEnrolled = _service.StudentCourse.IsStudentEnrolledInCourse(studentId, courseId);
+                return Ok(new { isEnrolled = isEnrolled });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error checking enrollment: {ex.Message}");
+            }
+        }
+
+        [HttpPost("enroll/{courseId:int}/{studentId:int}")]
+        public IActionResult EnrollStudentInCourse(
+            [FromRoute] int courseId, 
+            [FromRoute] int studentId, 
+            [FromBody] StudentCourseCreateDTO dto)
+        {
+            try
+            {
+                var result = _service.StudentCourse.EnrollStudentInCourse(studentId, courseId, dto);
+                if (result == null)
+                    return BadRequest("Enrollment failed.");
+
+                return CreatedAtAction(nameof(GetStudentCourseById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Enrollment error: {ex.Message}");
+            }
         }
 
         [HttpPost]
@@ -84,13 +129,22 @@ namespace Presentation.Controller
             return NoContent();
         }
 
-        [HttpDelete("unenroll")]
-        public IActionResult UnenrollStudentFromCourse([FromQuery] int studentId, [FromQuery] int courseId)
+        [HttpDelete("unenroll/{courseId:int}/{studentId:int}")]
+        public IActionResult UnenrollStudentFromCourse(
+            [FromRoute] int courseId, 
+            [FromRoute] int studentId)
         {
-            var result = _service.StudentCourse.UnenrollStudentFromCourse(studentId, courseId);
-            if (!result)
-                return NotFound("Student enrollment not found.");
-            return NoContent();
+            try
+            {
+                var result = _service.StudentCourse.UnenrollStudentFromCourse(studentId, courseId);
+                if (!result)
+                    return NotFound("Student enrollment not found.");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Unenrollment error: {ex.Message}");
+            }
         }
     }
 }

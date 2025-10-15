@@ -13,6 +13,6 @@ namespace Application.Contracts
         public bool DeleteFile(string filePath);
         public bool IsImage(IFormFile file);
         public bool IsVideo(IFormFile file);
-        public Task<bool> UpdateFile(IFormFile file, string existingFilePath);
+        public Task<string?> UpdateFile(IFormFile file, string existingFilePath);
     }
 }

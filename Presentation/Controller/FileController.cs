@@ -20,7 +20,7 @@ namespace Presentation.Controller
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
-            
+
             var result = await _service.FileService.UploadFileAsync(file);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error uploading file.");
@@ -55,10 +55,10 @@ namespace Presentation.Controller
                 return BadRequest("No file uploaded.");
             
             var result = await _service.FileService.UpdateFile(file, existingFilePath);
-            if (!result)
+            if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error updating file.");
             
-            return Ok(new { message = "File updated successfully." });
+            return Ok(new { message = "File updated successfully.", filePath = result });
         }
 
         [HttpDelete]
