@@ -28,12 +28,9 @@ namespace Application.Implementations
            RoleService = new RoleService(_manager, _mapper);
            StudentCourse = new StudentCourseService(_manager, _mapper);
            StudentProgress = new StudentProgressService(_mapper, _manager);
-           ClassService = new ClassService(_manager, _mapper);
            DepartmentService = new DepartmentService(_manager, _mapper);
            FacultyService = new FacultyService(_manager, _mapper);
-           ClassDepartmentService = new ClassDepartmentService(_manager, _mapper);
            CategoryService = new CategoryService(_manager, _mapper);
-           StudentClassService = new StudentClassService(_manager, _mapper);
            
            AuthService = new AuthService(_manager, _mapper, _configuration);
         }
@@ -47,11 +44,8 @@ namespace Application.Implementations
        public IRoleService RoleService { get; }
        public IStudentCourseService StudentCourse { get; }
        public IStudentProgressService StudentProgress { get; }
-       public IClassService ClassService { get; }
        public IDepartmentService DepartmentService { get; }
        public IFacultyService FacultyService { get; }
-       public IClassDepartmentService ClassDepartmentService { get; }
        public ICategoryService CategoryService { get; }
-       public IStudentClassService StudentClassService { get; }
     }
 }

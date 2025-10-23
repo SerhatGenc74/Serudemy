@@ -38,28 +38,57 @@ namespace Application.Implementations
 
         public async Task<string?> UpdateFile(IFormFile file, string existingFilePath)
         {
+
             try
             {
-                // Delete existing file if it exists
-                if (!string.IsNullOrEmpty(existingFilePath))
+                var extension = Path.GetExtension(file.FileName);
+
+                if (IsVideo(file))
                 {
-                    var fullExistingPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingFilePath.TrimStart('/'));
-                    if (File.Exists(fullExistingPath))
+                    // Delete existing file if it exists
+                    if (!string.IsNullOrEmpty(existingFilePath))
                     {
-                        File.Delete(fullExistingPath);
+                        var fullExistingPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads/videos/", existingFilePath.TrimStart('/'));
+                        if (File.Exists(fullExistingPath))
+                        {
+                            File.Delete(fullExistingPath);
+                        }
                     }
+
+                    // Save new file
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "videos", file.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    // Return the database path
+                    var dbPath = Path.Combine("/uploads/videos", file.FileName);
+                    return dbPath;
                 }
-                
-                // Save new file
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                else
                 {
-                    await file.CopyToAsync(stream);
+                    // Delete existing file if it exists
+                    if (!string.IsNullOrEmpty(existingFilePath))
+                    {
+                        var fullExistingPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads/images", existingFilePath.TrimStart('/'));
+                        if (File.Exists(fullExistingPath))
+                        {
+                            File.Delete(fullExistingPath);
+                        }
+                    }
+
+                    // Save new file
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "images", file.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    // Return web-compatible path
+                    return $"/uploads/images/{file.FileName}";
                 }
-                
-                // Return the database path
-                var dbPath = Path.Combine("/images/", file.FileName);
-                return dbPath;
+                   
             }
             catch
             {
@@ -69,32 +98,44 @@ namespace Application.Implementations
 
         public async Task<string> UploadFileAsync(IFormFile file)
         {
-            var extension = Path.GetExtension(file.FileName);
-            if (file != null && file.Length > 0)
+            if (file == null || file.Length == 0)
+                return null;
+
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+            
+            string folder;
+            if (IsVideo(file))
             {
-                if (extension == ".mp4")
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-                    var dbPath = Path.Combine("/videos/", file.FileName);
-                    return dbPath;
-                }
-                else
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", file.FileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-                    var dbPath = Path.Combine("/images/", file.FileName);
-                    return dbPath;
-                }
-               
+                folder = "videos";
             }
-            return "";
+            else if (IsImage(file))
+            {
+                folder = "images";
+            }
+            else
+            {
+                return null; // Desteklenmeyen dosya tipi
+            }
+
+            // Klasör yolunu oluştur
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", folder);
+            
+            // Klasör yoksa oluştur
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
+            // Dosyayı kaydet
+            var filePath = Path.Combine(uploadsPath, uniqueFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Web-uyumlu path döndür
+            return $"/uploads/{folder}/{uniqueFileName}";
         }
     }
 }

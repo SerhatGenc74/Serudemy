@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import '../../styles/EnrollStudents.css';
+import useEnrollmentActions from '../../hooks/useEnrollmentActions';
 
 const EnrollStudents = () => {
     const { courseId } = useParams();
@@ -9,6 +10,7 @@ const EnrollStudents = () => {
     const [selectedStudents, setSelectedStudents] = useState([]);
     const [enrolling, setEnrolling] = useState({});
     const [enrollMessage, setEnrollMessage] = useState('');
+    const { loading: actionLoading, error: actionError, enroll, unenroll } = useEnrollmentActions();
     const [searchTerm, setSearchTerm] = useState('');
     const [enrolledStatus, setEnrolledStatus] = useState({});
 
@@ -22,6 +24,15 @@ const EnrollStudents = () => {
     const { data: enrolledStudents, loading: enrolledLoading, error: enrolledError, refetch: refetchEnrolled } = useFetch(
         `http://localhost:5225/api/StudentCourse/course/${courseId}`
     );
+
+    // Debug logging
+    console.log('=== ENROLL STUDENTS DEBUG ===');
+    console.log('Course ID:', courseId);
+    console.log('Course Data:', course);
+    console.log('Eligible Students:', eligibleStudents);
+    console.log('Eligible Students Error:', studentsError);
+    console.log('Students Loading:', studentsLoading);
+    console.log('Enrolled Students:', enrolledStudents);
 
     // Öğrencilerin kayıt durumlarını ve enrollment ID'lerini sakla
     useEffect(() => {
@@ -73,81 +84,27 @@ const EnrollStudents = () => {
 
         try {
             if (enrollmentInfo?.isEnrolled && enrollmentInfo?.enrollmentId) {
-                // Kayıttan çıkar - StudentCourse ID kullan
-                const unenrollUrl = `http://localhost:5225/api/StudentCourse/${enrollmentInfo.enrollmentId}`;
-                console.log('Unenroll URL (using enrollment ID):', unenrollUrl);
-                
-                const response = await fetch(unenrollUrl, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+                // Use unenroll by enrollmentId if present
+                await unenroll(courseId, studentId);
 
-                console.log('Unenroll Response Status:', response.status);
+                // Durumu güncelle
+                setEnrolledStatus(prev => ({
+                    ...prev,
+                    [studentId]: { isEnrolled: false, enrollmentId: null }
+                }));
 
-                if (response.ok) {
-                    // Durumu güncelle
-                    setEnrolledStatus(prev => ({
-                        ...prev,
-                        [studentId]: { isEnrolled: false, enrollmentId: null }
-                    }));
-                    
-                    // Enrolled students listesini yeniden yükle
-                    if (refetchEnrolled) {
-                        await refetchEnrolled();
-                    }
-                    
-                    setEnrollMessage(`✅ Öğrenci başarıyla kayıttan çıkarıldı!`);
-                } else {
-                    const responseText = await response.text();
-                    throw new Error(`Kayıttan çıkarma başarısız: ${responseText}`);
-                }
+                if (refetchEnrolled) await refetchEnrolled();
+                setEnrollMessage(`✅ Öğrenci başarıyla kayıttan çıkarıldı!`);
             } else {
-                // Kayıt et
-                const enrollUrl = `http://localhost:5225/api/StudentCourse/enroll/${courseId}/${studentId}`;
-                console.log('Enroll URL:', enrollUrl);
-                
-                const enrollData = {
-                    accountId: studentId,
-                    courseId: parseInt(courseId),
-                    enrolledAt: new Date().toISOString(),
-                    completedAt: null,
-                    courseCompleted: false,
-                    progress: 0
-                };
-                console.log('Enroll Data:', enrollData);
-                
-                const response = await fetch(enrollUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(enrollData)
-                });
+                // Use enroll helper
+                const result = await enroll(courseId, studentId);
+                setEnrolledStatus(prev => ({
+                    ...prev,
+                    [studentId]: { isEnrolled: true, enrollmentId: result.id }
+                }));
 
-                console.log('Enroll Response Status:', response.status);
-
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Enrollment result:', result);
-                    
-                    // Durumu güncelle
-                    setEnrolledStatus(prev => ({
-                        ...prev,
-                        [studentId]: { isEnrolled: true, enrollmentId: result.id }
-                    }));
-                    
-                    // Enrolled students listesini yeniden yükle
-                    if (refetchEnrolled) {
-                        await refetchEnrolled();
-                    }
-                    
-                    setEnrollMessage(`✅ Öğrenci başarıyla kursa kaydedildi!`);
-                } else {
-                    const responseText = await response.text();
-                    throw new Error(`Kayıt işlemi başarısız: ${responseText}`);
-                }
+                if (refetchEnrolled) await refetchEnrolled();
+                setEnrollMessage(`✅ Öğrenci başarıyla kursa kaydedildi!`);
             }
 
             // Mesajı 3 saniye sonra temizle

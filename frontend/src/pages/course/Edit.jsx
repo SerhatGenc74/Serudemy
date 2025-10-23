@@ -16,7 +16,9 @@ const EditCourse = () => {
         description: "",
         imageUrl: "",
         targetDepartmentId: "",
-        targetGradeLevel: ""
+        targetGradeLevel: "",
+        courseAccessStatus: "",
+        isAccessible: false
     });
 
     const [selectedFile, setSelectedFile] = useState(null);
@@ -31,15 +33,18 @@ const EditCourse = () => {
                 description: course.description || "",
                 imageUrl: course.imageUrl || "",
                 targetDepartmentId: course.targetDepartmentId || "",
-                targetGradeLevel: course.targetGradeLevel || ""
+                targetGradeLevel: course.targetGradeLevel || "",
+                courseAccessStatus: course.courseAccessStatus || "Draft",
+                isAccessible: course.isAccessible || false
             });
         }
     }, [course]);
 
     const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: type === 'checkbox' ? checked : value
         });
     };
 
@@ -102,6 +107,8 @@ const EditCourse = () => {
                 imageUrl: imageUrl,
                 targetDepartmentId: parseInt(formData.targetDepartmentId),
                 targetGradeLevel: parseInt(formData.targetGradeLevel),
+                courseAccessStatus: formData.courseAccessStatus,
+                isAccessible: formData.isAccessible,
                 updatedAt: new Date().toISOString()
             };
             
@@ -262,6 +269,45 @@ const EditCourse = () => {
                                 </select>
                             </div>
                             
+                            <div className="form-group">
+                                <label className="form-label">📊 Kurs Durumu</label>
+                                <select 
+                                    className="form-select"
+                                    name="courseAccessStatus"
+                                    value={formData.courseAccessStatus}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="Draft">📝 Taslak (Draft)</option>
+                                    <option value="Published">🌐 Yayınlandı (Published)</option>
+                                    <option value="Archived">📦 Arşivlendi (Archived)</option>
+                                </select>
+                                <small className="form-help-text">
+                                    • <strong>Taslak:</strong> Sadece siz görebilirsiniz<br/>
+                                    • <strong>Yayınlandı:</strong> Öğrenciler kursu görebilir<br/>
+                                    • <strong>Arşivlendi:</strong> Artık aktif değil
+                                </small>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        name="isAccessible"
+                                        checked={formData.isAccessible}
+                                        onChange={handleChange}
+                                        className="form-checkbox"
+                                    />
+                                    <span className="checkbox-text">
+                                        🔓 Kurs Erişilebilir
+                                    </span>
+                                </label>
+                                <small className="form-help-text">
+                                    Bu seçeneği işaretlediğinizde öğrenciler kursa kayıt olup içeriği görüntüleyebilir.
+                                    İşaretli değilse kurs listede görünür ama erişilemez.
+                                </small>
+                            </div>
+                            
                             <div className="form-actions">
                                 <button
                                     type="button"
@@ -340,6 +386,23 @@ const EditCourse = () => {
                                                 `${formData.targetGradeLevel}. Sınıf` 
                                                 : "Seviye seçin"
                                             }
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="preview-detail-item">
+                                        <span className="detail-label">📊 Durum:</span>
+                                        <span className={`detail-value status-${formData.courseAccessStatus?.toLowerCase()}`}>
+                                            {formData.courseAccessStatus === "Draft" && "📝 Taslak"}
+                                            {formData.courseAccessStatus === "Published" && "🌐 Yayınlandı"}
+                                            {formData.courseAccessStatus === "Archived" && "📦 Arşivlendi"}
+                                            {!formData.courseAccessStatus && "Durum seçin"}
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="preview-detail-item">
+                                        <span className="detail-label">🔐 Erişim:</span>
+                                        <span className={`detail-value ${formData.isAccessible ? 'accessible' : 'not-accessible'}`}>
+                                            {formData.isAccessible ? "🔓 Erişilebilir" : "🔒 Erişim Kapalı"}
                                         </span>
                                     </div>
                                 </div>

@@ -25,5 +25,9 @@ namespace Contracts.DTOs
 
         public int? TargetGradeLevel { get; init; }
 
+        public string? CourseAccessStatus { get; init; }
+
+        public bool? IsAccessible { get; init; }
+
     }
 }

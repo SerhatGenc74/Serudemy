@@ -3,68 +3,66 @@ import { Link, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import '../../styles/InstructorDashboard.css';
 import useCurrentAccountId from '../../hooks/useAccountId';
+import useLectureCountsForCourses from '../../hooks/useLectureCountsForCourses';
 
 const InstructorDashboard = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
-    const [lectureCount, setLectureCount] = useState({});
     const accountId = useCurrentAccountId();
-    // Eğitmen verilerini çek
-    const { data: instructorCourses, loading: coursesLoading, error: coursesError } = useFetch( `http://localhost:5225/api/Course/by-instructor/${accountId}` ); 
+
+    const { data: instructorCourses, loading: coursesLoading, error: coursesError } = useFetch( `http://localhost:5225/api/Course/by-instructor/${accountId}` );
+
+    const { data: lectureCount, loading: lectureCountsLoading, error: lectureCountsError } = useLectureCountsForCourses(instructorCourses); 
     
-    // Her kurs için ders sayısını al
-    useEffect(() => {
-        if (instructorCourses && instructorCourses.length > 0) {
-            const fetchLectureCounts = async () => {
-                const counts = {};
-                for (const course of instructorCourses) {
-                    try {
-                        const response = await fetch(`http://localhost:5225/api/Lecture/course/${course.courseId}`);
-                        if (response.ok) {
-                            const lectures = await response.json();
-                            counts[course.courseId] = lectures ? lectures.length : 0;
-                        } else {
-                            counts[course.courseId] = 0;
-                        }
-                    } catch (error) {
-                        console.error(`Error fetching lectures for course ${course.courseId}:`, error);
-                        counts[course.courseId] = 0;
-                    }
-                }
-                setLectureCount(counts);
-            };
-            
-            fetchLectureCounts();
-        }
-    }, [instructorCourses]);
     
-    // Mock data (API hazır olana kadar)
     const mockStats = {
         totalCourses: instructorCourses ? instructorCourses.length : 0,
         totalStudents: 1250,
         totalRevenue: 15750,
         averageRating: 4.7,
-        totalLectures: Object.values(lectureCount).reduce((sum, count) => sum + count, 0),
+        totalLectures: lectureCount ? Object.values(lectureCount).reduce((sum, count) => {
+            const num = typeof count === 'object' && count.count !== undefined ? count.count : (typeof count === 'number' ? count : 0);
+            return sum + num;
+        }, 0) : 0,
         totalHours: 32
     };
 
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'published': return '#00b894';
-            case 'draft': return '#fdcb6e';
-            case 'pending': return '#74b9ff';
-            default: return '#636e72';
+    const getStatusColor = (courseAccessStatus, isAccessible) => {
+        // Önce erişilebilirlik durumuna göre kontrol et
+        if (!isAccessible) {
+            return '#e17055'; // Kırmızı tonları - Erişim kapalı
+        }
+        
+        // Sonra kurs durumuna göre renk ver
+        switch (courseAccessStatus) {
+            case 'Published': return '#00b894'; // Yeşil - Yayınlandı
+            case 'Draft': return '#fdcb6e';     // Sarı - Taslak
+            case 'Archived': return '#636e72';  // Gri - Arşivlendi
+            default: return '#74b9ff';          // Mavi - Bilinmiyor
         }
     };
 
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'published': return 'Yayında';
-            case 'draft': return 'Taslak';
-            case 'pending': return 'İncelemede';
-            default: return 'Bilinmiyor';
+    const getStatusText = (courseAccessStatus, isAccessible) => {
+        // Erişim durumu + Kurs durumu kombinasyonu
+        let accessText = isAccessible ? '🔓' : '🔒';
+        let statusText = '';
+        
+        switch (courseAccessStatus) {
+            case 'Published': 
+                statusText = 'Yayınlandı';
+                break;
+            case 'Draft': 
+                statusText = 'Taslak';
+                break;
+            case 'Archived': 
+                statusText = 'Arşivlendi';
+                break;
+            default: 
+                statusText = 'Bilinmiyor';
         }
+        
+        return `${accessText} ${statusText}`;
     };
     
    
@@ -253,7 +251,7 @@ const InstructorDashboard = () => {
                                             <tr>
                                                 <th>Kurs</th>
                                                 <th></th>
-                                                <th>Durum</th>
+                                                <th>Durum & Erişim</th>
                                                 <th>İşlemler</th>
                                             </tr>
                                         </thead>
@@ -288,7 +286,7 @@ const InstructorDashboard = () => {
                                                                     <p>{course.description}</p>
                                                                     <div className="course-meta">
                                                                         <span className="lecture-count">
-                                                                            📚 {lectureCount[course.courseId] || 0} ders
+                                                                            📚 {(lectureCount && lectureCount[course.courseId]) || 0} ders
                                                                         </span>
                                                                         <span className="course-category">
                                                                             🏷️ {course.categoryName || 'Kategori yok'}
@@ -303,9 +301,9 @@ const InstructorDashboard = () => {
                                                         <td>
                                                             <span 
                                                                 className="status-badge"
-                                                                style={{ backgroundColor: getStatusColor(course.status || 'draft') }}
+                                                                style={{ backgroundColor: getStatusColor(course.courseAccessStatus, course.isAccessible) }}
                                                             >
-                                                                {getStatusText(course.status || 'draft')}
+                                                                {getStatusText(course.courseAccessStatus, course.isAccessible)}
                                                             </span>
                                                         </td>
                                                         <td>

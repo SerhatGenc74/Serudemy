@@ -169,7 +169,7 @@ namespace Application.Implementations
                       aar => aar.AccountRole.RoleId,
                       r => r.Id,
                       (aar, r) => new { aar.Account, Role = r })
-                .Where(x => x.Role.Name == "Öğrenci")
+                .Where(x => x.Role.Name == "Student")
                 .Select(s => new
                 {
                     id = s.Account.Id,

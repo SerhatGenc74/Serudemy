@@ -16,9 +16,7 @@ namespace Contracts.DTOs
 
         public bool? LecturesCompleted { get; init; }
 
-        public byte[] LastUpdate { get; init; } = null!;
         public int WatchedSeconds { get; init; }
         public int PlaybackPosition { get; init; }
-
     }
 }

@@ -79,7 +79,7 @@ namespace Presentation.Controller
             var progresses = _service.StudentProgress.GetStudentProgressByStudentId(studentId);
             return Ok(progresses);
         }
-
+        
         [HttpGet("lecture/{lectureId:int}")]
         public IActionResult GetStudentProgressByLectureId([FromRoute(Name = "lectureId")] int lectureId)
         {
@@ -92,6 +92,13 @@ namespace Presentation.Controller
         {
             var result = _service.StudentProgress.CreateStudentProgress(dto);
             return CreatedAtAction(nameof(GetStudentProgressById), new { id = result.Id }, result);
+        }
+
+        [HttpGet("progress/{studentId:int}/{lectureId:int}")]
+        public IActionResult IsAlreadyHaveProgress([FromRoute] int studentId, [FromRoute] int lectureId)
+        {
+            var result = _service.StudentProgress.IsAlreadyHaveProgress(studentId, lectureId);
+            return Ok(result);
         }
 
         [HttpPut("{id:int}")]

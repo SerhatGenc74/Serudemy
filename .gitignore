@@ -21,9 +21,10 @@ Serudemy/bundleconfig.json
 */Properties/
 
 # Ignore wwwroot content except .gitkeep files in images and videos
-uploads/images/*
-uploads/videos/*
-!uploads/images/.gitkeep
-!uploads/videos/.gitkeep
+Serudemy/uploads/images/*
+Serudemy/uploads/videos/*
+!Serudemy/uploads/images/.gitkeep
+!Serudemy/uploads/videos/.gitkeep
+Serudemy/Infrastructure/Migrations
 
 output/

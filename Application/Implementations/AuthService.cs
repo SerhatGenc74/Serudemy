@@ -164,18 +164,6 @@ namespace Application.Implementations
 
         public Task<bool> LogOutAsync()
         {
-            // For JWT-based authentication, logout is typically handled client-side
-            // by removing the token from storage (localStorage, sessionStorage, etc.)
-            // 
-            // On the server side, we can:
-            // 1. Return success to indicate the logout request was processed
-            // 2. In a more advanced implementation, you could:
-            //    - Add the token to a blacklist/blocklist
-            //    - Store revoked tokens in cache/database
-            //    - Implement token versioning
-            
-            // For now, we'll return a successful logout
-            // The actual token removal should be handled by the client
             return Task.FromResult(true);
         }
     }

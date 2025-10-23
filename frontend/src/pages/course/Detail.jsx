@@ -1,21 +1,73 @@
 import { Link, useParams } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import '../../styles/CourseDetail.css';
+import useCurrentAccountId from "../../hooks/useAccountId";
 
-const CourseDetail = () => {
+const   CourseDetail = () => {
 
     const param = useParams();
     const courseId = param.courseId;
-    const studentId = 6; // Örnek öğrenci ID'si
+    const accountId = useCurrentAccountId();
     const { data: course, loading, error } = useFetch(`http://localhost:5225/api/course/${courseId}`);
-    const {data : videos,loading:videoloading,error:videoerror} = useFetch(`http://localhost:5225/api/StudentProgress/student/6/course/${courseId}/last`);
+    const {data : lastvideo} = useFetch(`http://localhost:5225/api/StudentProgress/student/${accountId}/course/${courseId}/last`);
     const { data: lectures, loading: lecturesLoading, error: lecturesError } = useFetch(`http://localhost:5225/api/Lecture/course/${courseId}`);
-    const {data: Progress} = useFetch(`http://localhost:5225/api/StudentProgress/course/${courseId}/student/${studentId}/progress`);
+    const {data: studentProgresses} = useFetch(`http://localhost:5225/api/StudentProgress/course/${courseId}/student/${accountId}/progress`);
+    const {data: firstVideo} = useFetch(`http://localhost:5225/api/Lecture/course/${courseId}/first`);
+    const {data: IsEnrolledData, loading: isEnrolledLoading} = useFetch(`http://localhost:5225/api/StudentCourse/is-enrolled/${accountId}/${courseId}`);
+    const {data: accessibilityData, loading: accessibilityLoading} = useFetch(`http://localhost:5225/api/course/${courseId}/is-accessible`);
 
-    const lastwatchedid = videos?.lecturesId; 
-    const IsEnrolled = true;
+    const lastwatchedid = lastvideo ? lastvideo?.lecturesId : firstVideo?.Id;
+    const IsEnrolled = IsEnrolledData?.isEnrolled;
+    const isAccessible = accessibilityData?.isAccessible;
+    const courseAccessStatus = accessibilityData?.courseAccessStatus;
 
-    if (loading || lecturesLoading) return (
+    // Ders durumunu belirleyen fonksiyon - ProgressPerc'e göre
+    const getLectureStatus = (lectureId) => {
+        if (!studentProgresses || !Array.isArray(studentProgresses)) {
+            return { status: 'not-started', text: '📝 Başlanmadı', class: 'status-not-started', progress: 0 };
+        }
+
+        const progress = studentProgresses.find(p => {
+            // Hem number hem string karşılaştırması yapalım
+            return p.lecturesId === lectureId || p.lecturesId === parseInt(lectureId) || p.lecturesId === String(lectureId);
+        });
+        
+        if (!progress) {
+            return { status: 'not-started', text: '📝 Başlanmadı', class: 'status-not-started', progress: 0 };
+        }
+
+        const progressPerc = progress.progressPerc || 0;
+        
+        // ProgressPerc null ise başlanmadı
+        if (progressPerc === null || progressPerc === undefined) {
+            return { status: 'not-started', text: '📝 Başlanmadı', class: 'status-not-started', progress: 0 };
+        }
+        
+        // ProgressPerc = 100 ise tamamlandı
+        if (progressPerc >= 100) {
+            return { 
+                status: 'completed', 
+                text: '✅ Tamamlandı', 
+                class: 'status-completed', 
+                progress: 100 
+            };
+        }
+        
+        // ProgressPerc > 0 ise devam ediyor
+        if (progressPerc > 0) {
+            return { 
+                status: 'in-progress', 
+                text: `🔄 İzleniyor (%${Math.round(progressPerc)})`, 
+                class: 'status-in-progress', 
+                progress: progressPerc 
+            };
+        }
+        
+        // ProgressPerc = 0 ise başlanmadı
+        return { status: 'not-started', text: '📝 Başlanmadı', class: 'status-not-started', progress: 0 };
+    };
+
+    if (loading || lecturesLoading || isEnrolledLoading || accessibilityLoading) return (
         <div className="course-detail-container">
             <div className="loading-state">
                 🔄 Kurs detayları yükleniyor...
@@ -30,6 +82,57 @@ const CourseDetail = () => {
             </div>
         </div>
     );
+
+    // Kurs erişilebilirlik kontrolü
+    if (!isAccessible && courseAccessStatus !== undefined) {
+        return (
+            <div className="course-detail-container">
+                <div className="page-header">
+                    <h1 className="page-title">🔒 Kurs Erişim Kapalı</h1>
+                    <p className="page-subtitle">Bu kurs şu anda öğrenciler için erişilebilir durumda değil</p>
+                </div>
+                
+                <div className="course-detail-card">
+                    {course && (
+                        <div className="course-hero-section">
+                            <div className="course-content">
+                                <h2 className="course-title">{course.name}</h2>
+                                <p className="course-description">{course.description}</p>
+                                <div className="course-instructor">
+                                    <span className="instructor-icon">👨‍🏫</span>
+                                    <span>Eğitmen: {course.courseOwner?.name || 'Bilinmiyor'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <div className="course-info-section">
+                        <div className="enrollment-status not-accessible-status" style={{
+                            background: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+                            color: 'white',
+                            padding: '1.5rem',
+                            borderRadius: '12px',
+                            textAlign: 'center',
+                            marginBottom: '2rem'
+                        }}>
+                            <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>🔒</div>
+                            <h3>Bu Kurs Şu Anda Erişilebilir Değil</h3>
+                            <p style={{margin: '0.5rem 0', opacity: '0.9'}}>
+                                {courseAccessStatus === 'Draft' && 'Kurs henüz taslak aşamasında.'}
+                                {courseAccessStatus === 'Archived' && 'Kurs arşivlenmiş durumda.'}
+                                {courseAccessStatus === 'Published' && 'Kurs yayınlanmış ancak öğrenci erişimi kapatılmış.'}
+                            </p>
+                            <p style={{margin: '0', fontSize: '0.9rem', opacity: '0.8'}}>
+                                Erişim için öğretmeninizle iletişime geçin.
+                            </p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (IsEnrolled) {
         return (
             <div className="course-detail-container">
@@ -65,6 +168,8 @@ const CourseDetail = () => {
                                     ✅ Bu kursa kayıtlısınız
                                 </div>
                                 
+                               
+                                
                                 <div className="course-stats">
                                     <div className="stat-card">
                                         <div className="stat-label">Seviye</div>
@@ -79,9 +184,18 @@ const CourseDetail = () => {
                                         </div>
                                     </div>
                                     <div className="stat-card">
-                                        <div className="stat-label">Durum</div>
+                                        <div className="stat-label">Kurs Durumu</div>
                                         <div className="stat-value">
-                                            🟢 Aktif
+                                            {(courseAccessStatus || course.courseAccessStatus) === "Draft" && "📝 Taslak"}
+                                            {(courseAccessStatus || course.courseAccessStatus) === "Published" && "✅ Yayında"}
+                                            {(courseAccessStatus || course.courseAccessStatus) === "Archived" && "📦 Arşivlenmiş"}
+                                            {!(courseAccessStatus || course.courseAccessStatus) && "🟢 Aktif"}
+                                        </div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">Öğrenci Erişimi</div>
+                                        <div className="stat-value">
+                                            {(isAccessible !== undefined ? isAccessible : course.isAccessible) ? "🔓 Açık" : "🔒 Kapalı"}
                                         </div>
                                     </div>
                                 </div>
@@ -102,7 +216,7 @@ const CourseDetail = () => {
                                                 </div>
                                                 <div className="summary-item">
                                                     <div className="summary-number">
-                                                        {Math.floor(lectures.reduce((total, lecture) => total + (lecture.duration || 5), 0) / 60)}s
+                                                        {Math.floor(lectures.reduce((total, lecture) => total + (lecture.lectureDuration || 5), 0) / 60)} dk
                                                     </div>
                                                     <div className="summary-label">Toplam Süre</div>
                                                 </div>
@@ -120,19 +234,34 @@ const CourseDetail = () => {
                                                             <div className="lesson-details">
                                                                 <div className="lesson-title">{lecture.name}</div>
                                                                 <div className="lesson-duration">
-                                                                    ⏱️ {lecture.duration || 5} dakika
+                                                                    ⏱️ {(lecture.lectureDuration / 60).toFixed(0) || 5} dakika
                                                                 </div>
+                                                                {getLectureStatus(lecture.id).progress > 0 && (
+                                                                    <div className="lesson-progress-bar">
+                                                                        <div 
+                                                                            className="progress-fill"
+                                                                            style={{
+                                                                                width: `${getLectureStatus(lecture.id).progress}%`,
+                                                                                background: getLectureStatus(lecture.id).status === 'completed' 
+                                                                                    ? 'linear-gradient(90deg, #10b981, #059669)' 
+                                                                                    : 'linear-gradient(90deg, #f59e0b, #d97706)'
+                                                                            }}
+                                                                        ></div>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <div className="lesson-actions">
-                                                            <span className="lesson-status status-not-started">
-                                                                📝 Henüz İzlenmedi
+                                                            <span className={`lesson-status ${getLectureStatus(lecture.id).class}`}>
+                                                                {getLectureStatus(lecture.id).text}
                                                             </span>
                                                             <Link 
                                                                 to={`/course/${courseId}/Video/${lecture.id}`}
                                                                 className="play-btn"
                                                             >
-                                                                ▶️ İzle
+                                                                {getLectureStatus(lecture.id).status === 'completed' ? '🔄 Tekrar İzle' : 
+                                                                 getLectureStatus(lecture.id).status === 'in-progress' ? '▶️ Devam Et' : 
+                                                                 '▶️ İzle'}
                                                             </Link>
                                                         </div>
                                                     </li>
@@ -190,7 +319,7 @@ const CourseDetail = () => {
                             
                             <div className="course-info-section">
                                 <div className="enrollment-status not-enrolled-status">
-                                    ⚠️ Bu kursa henüz kayıtlı değilsiniz
+                                    ⚠️ Öğretmeninizin Kursa kayıt etmesi Gerekli. Öğretmeninize Danışın 
                                 </div>
                                 
                                 <div className="course-stats">
@@ -225,9 +354,9 @@ const CourseDetail = () => {
                                                 </div>
                                                 <div className="summary-item">
                                                     <div className="summary-number">
-                                                        {Math.floor(lectures.reduce((total, lecture) => total + (lecture.duration || 5), 0) / 60)}s
+                                                        {Math.floor(lectures.reduce((total, lecture) => total + (lecture.lectureDuration || 5) / 60, 0))}s
                                                     </div>
-                                                    <div className="summary-label">Toplam Süre</div>
+                                                    <div className="summary-label">Yaklaşık Süre</div>
                                                 </div>
                                                 <div className="summary-item">
                                                     <div className="summary-number">🔒</div>
@@ -299,4 +428,8 @@ const CourseDetail = () => {
         );
     }
 }
+
+
+
+
 export default CourseDetail;

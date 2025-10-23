@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
+import useLectureCount from '../../hooks/useLectureCount';
 
 // CSS stilleri
 const styles = `
@@ -230,13 +231,13 @@ const StudentLectureProgress = () => {
         `http://localhost:5225/api/StudentProgress/course/${courseId}/student/${studentId}/progress`
     );
     const { data: finishedLectureCount ,loading: finishedLoading, error: finishedError} = useFetch(`http://localhost:5225/api/StudentProgress/student/${studentId}/course/${courseId}/completed/count`);
-    const { data: allLectureCount ,loading: allLoading, error: allError} = useFetch(`http://localhost:5225/api/Lecture/course/${courseId}/count`);
+    const { data: allLectureCount , loading: allLoading, error: allError } = useLectureCount(courseId);
 
     if (loading || finishedLoading || allLoading) return <div className="loading-spinner">Yükleniyor...</div>;
     if (error || finishedError || allError) return <div className="error-message">Hata oluştu.</div>;
     if (!progress || !progress.length) return <div className="no-data">İlerleme verisi bulunamadı.</div>;
 
-    const completionPercentage = Math.round((finishedLectureCount?.count / allLectureCount?.count) * 100) || 0;
+    const completionPercentage = Math.round((finishedLectureCount?.count / (allLectureCount?.count ?? allLectureCount ?? 1)) * 100) || 0;
 
     return (
         <div className="student-progress-container">

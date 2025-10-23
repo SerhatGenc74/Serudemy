@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Presentation.Controller
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase

@@ -1,32 +1,53 @@
-import { useParams } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
+import '../../styles/Profile.css';
+import useCurrentAccountId from "../../hooks/useAccountId";
+import ProfileLoading from "../../components/profile/ProfileLoading";
+import ProfileError from "../../components/profile/ProfileError";
+import ProfileHeader from "../../components/profile/ProfileHeader";
+import ProfileAvatar from "../../components/profile/ProfileAvatar";
+import ContactInfo from "../../components/profile/ContactInfo";
+import PersonalInfo from "../../components/profile/PersonalInfo";
+import AcademicInfo from "../../components/profile/AcademicInfo";
+import SecurityInfo from "../../components/profile/SecurityInfo";
 
 const Profile = () => {
+    const accountId = useCurrentAccountId();
+    const {data: account, loading, error} = useFetch(`http://localhost:5225/api/account/${accountId}`);
+    
+    // Account DTO'sundan direkt department ve faculty bilgilerini al
+    const department = account?.department;
+    const faculty = department?.faculty;
 
-    const param = useParams();
-    const {data:account,loading,error} = useFetch(`http://localhost:5225/api/account/${param.userId}`);
     if (loading) {
-        return <div>Loading...</div>;
+        return <ProfileLoading />;
     }
 
-    if (error) {
-        return <div>Error: {error}</div>;
+    if (error || !account) {
+        return <ProfileError error={error} />;
     }
+
     return (
-        <div>
-            <h1>Profile Page</h1>
-            {account && (
-                <div>   
-                    <h2>{account.name}</h2>
-                    <h2>{account.surname}</h2>
-                    <h2>{account.userno}</h2>
-                    <h2>Email: {account.userEmail}</h2>
-                    <h2>Status: {account.status ? 'Active' : 'Inactive'}</h2>
-                    <h2>Password: {account.password}</h2>
+        <div className="profile-container">
+            <div className="profile-content">
+                <ProfileHeader />
 
+                {/* Main Profile Card */}
+                <div className="profile-card">
+                    <div className="profile-layout">
+                        <ProfileAvatar account={account} />
+
+                        {/* Sağ taraf - Detaylı bilgiler */}
+                        <div className="profile-info">
+                            <ContactInfo account={account} />
+                            <PersonalInfo account={account} />
+                            <AcademicInfo account={account} department={department} faculty={faculty} />
+                            <SecurityInfo account={account} />
+                        </div>
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
-}
+};
+
 export default Profile;

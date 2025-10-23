@@ -42,6 +42,5 @@ namespace Contracts.DTOs
         // Navigation Properties
         public ICollection<AccountRoleDTO>? AccountRoles { get; init; }
         public DepartmentDTO? Department { get; init; }
-        public ICollection<StudentClassDTO>? StudentClasses { get; init; }
     }
 }

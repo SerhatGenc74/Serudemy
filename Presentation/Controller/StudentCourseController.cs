@@ -72,8 +72,8 @@ namespace Presentation.Controller
             }
         }
 
-        [HttpGet("is-enrolled")]
-        public IActionResult IsStudentEnrolledInCourse([FromQuery] int studentId, [FromQuery] int courseId)
+        [HttpGet("is-enrolled/{studentId:int}/{courseId:int}")]
+        public IActionResult IsStudentEnrolledInCourse([FromRoute] int studentId, [FromRoute] int courseId)
         {
             try
             {

@@ -26,5 +26,6 @@ namespace Application.Contracts
         public StudentProgressDTO UpdateStudentProgress(StudentProgressUpdateDTO dto, int id);
         public void DeleteStudentProgress(int id);
         public StudentProgressDTO GetLastProgressWithLecture(int accountId, int courseId);
+        public StudentProgressDTO IsAlreadyHaveProgress(int studentId,int lectureId);
     }
 }

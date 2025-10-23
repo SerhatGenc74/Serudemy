@@ -22,9 +22,7 @@ public partial class SerudemyContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<Class> Classes { get; set; }
-
-    public virtual DbSet<ClassDepartment> ClassDepartments { get; set; }
+    // Removed legacy Class/ClassDepartment tables
 
     public virtual DbSet<Course> Courses { get; set; }
 
@@ -36,7 +34,7 @@ public partial class SerudemyContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
-    public virtual DbSet<StudentClass> StudentClasses { get; set; }
+    // Removed legacy StudentClass table
 
     public virtual DbSet<StudentProgress> StudentProgresses { get; set; }
 
@@ -50,7 +48,10 @@ public partial class SerudemyContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-
+        // Ignore legacy entities so EF drops them in migration
+        modelBuilder.Ignore<Class>();
+        modelBuilder.Ignore<ClassDepartment>();
+        modelBuilder.Ignore<StudentClass>();
 
         modelBuilder.Entity<Account>(entity =>
         {
@@ -107,29 +108,7 @@ public partial class SerudemyContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(20);
         });
 
-        modelBuilder.Entity<Class>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07D6EA9196");
-
-            entity.ToTable("Class");
-
-            entity.Property(e => e.Name).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<ClassDepartment>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__ClassDep__3214EC071F669A37");
-
-            entity.ToTable("ClassDepartment");
-
-            entity.HasOne(d => d.Class).WithMany(p => p.ClassDepartments)
-                .HasForeignKey(d => d.ClassId)
-                .HasConstraintName("FK__ClassDepa__Class__68487DD7");
-
-            entity.HasOne(d => d.Department).WithMany(p => p.ClassDepartments)
-                .HasForeignKey(d => d.DepartmentId)
-                .HasConstraintName("FK__ClassDepa__Depar__6754599E");
-        });
+        // Removed legacy Class and ClassDepartment mappings
 
         modelBuilder.Entity<Course>(entity =>
         {
@@ -210,23 +189,7 @@ public partial class SerudemyContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(12);
         });
 
-        modelBuilder.Entity<StudentClass>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__StudentC__3214EC0708FACA0B");
-
-            entity.ToTable("StudentClass");
-
-            entity.Property(e => e.ClassId).HasColumnName("ClassID");
-            entity.Property(e => e.EnrolledAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Class).WithMany(p => p.StudentClasses)
-                .HasForeignKey(d => d.ClassId)
-                .HasConstraintName("FK__StudentCl__Class__70DDC3D8");
-
-            entity.HasOne(d => d.Student).WithMany(p => p.StudentClasses)
-                .HasForeignKey(d => d.StudentId)
-                .HasConstraintName("FK__StudentCl__Stude__6FE99F9F");
-        });
+        // Removed legacy StudentClass mapping
 
         modelBuilder.Entity<StudentProgress>(entity =>
         {

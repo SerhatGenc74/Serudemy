@@ -17,9 +17,20 @@ namespace Serudemy.Utilities.AutoMapper
             CreateMap<AccountRoleCreateDTO, AccountRole>();
             CreateMap<AccountRoleUpdateDTO, AccountRole>();
 
-            CreateMap<CourseDTO, Course>().ReverseMap();
-            CreateMap<CourseCreateDTO, Course>();
-            CreateMap<CourseUpdateDTO, Course>();
+            CreateMap<CourseDTO, Course>()
+                .ForMember(dest => dest.CourseAccessStatus, opt => opt.MapFrom(src => 
+                    !string.IsNullOrEmpty(src.CourseAccessStatus) && Enum.IsDefined(typeof(CourseAccessStatus), src.CourseAccessStatus) ? 
+                    (CourseAccessStatus)Enum.Parse(typeof(CourseAccessStatus), src.CourseAccessStatus, true) : CourseAccessStatus.Draft))
+                .ReverseMap()
+                .ForMember(dest => dest.CourseAccessStatus, opt => opt.MapFrom(src => src.CourseAccessStatus.ToString()));
+            CreateMap<CourseCreateDTO, Course>()
+                .ForMember(dest => dest.CourseAccessStatus, opt => opt.MapFrom(src => 
+                    !string.IsNullOrEmpty(src.CourseAccessStatus) && Enum.IsDefined(typeof(CourseAccessStatus), src.CourseAccessStatus) ? 
+                    (CourseAccessStatus)Enum.Parse(typeof(CourseAccessStatus), src.CourseAccessStatus, true) : CourseAccessStatus.Draft));
+            CreateMap<CourseUpdateDTO, Course>()
+                .ForMember(dest => dest.CourseAccessStatus, opt => opt.MapFrom(src => 
+                    !string.IsNullOrEmpty(src.CourseAccessStatus) && Enum.IsDefined(typeof(CourseAccessStatus), src.CourseAccessStatus) ? 
+                    (CourseAccessStatus)Enum.Parse(typeof(CourseAccessStatus), src.CourseAccessStatus, true) : CourseAccessStatus.Draft));
 
             CreateMap<CategoryDTO, Category>().ReverseMap();
             CreateMap<CategoryCreateDTO, Category>();
@@ -38,12 +49,10 @@ namespace Serudemy.Utilities.AutoMapper
             CreateMap<StudentCourseCreateDTO, StudentCourse>();
 
             CreateMap<StudentProgressDTO, StudentProgress>().ReverseMap();
-            CreateMap<StudentProgressUpdateDTO, StudentProgress>();
-            CreateMap<StudentProgressCreateDTO, StudentProgress>();
-
-            CreateMap<StudentClassDTO,StudentClass>().ReverseMap();
-            CreateMap<StudentClassCreateDTO, StudentClass>();
-            CreateMap<StudentClassUpdateDTO, StudentClass>();
+            CreateMap<StudentProgressUpdateDTO, StudentProgress>()
+                .ForMember(dest => dest.LastUpdate, opt => opt.Ignore()); // LastUpdate backend'de otomatik ayarlanacak
+            CreateMap<StudentProgressCreateDTO, StudentProgress>()
+                .ForMember(dest => dest.LastUpdate, opt => opt.Ignore()); // LastUpdate backend'de otomatik ayarlanacak
 
             CreateMap<FacultyDTO, Faculty>().ReverseMap();
             CreateMap<FacultyCreateDTO, Faculty>();
@@ -51,15 +60,6 @@ namespace Serudemy.Utilities.AutoMapper
 
             CreateMap<DepartmentUpdateDTO, Department>();
             CreateMap<DepartmentCreateDTO, Department>();
-            CreateMap<ClassDTO, Class>().ReverseMap();
-
-            CreateMap<ClassCreateDTO, Class>();
-            CreateMap<ClassUpdateDTO, Class>();
-            CreateMap<ClassDTO, Class>().ReverseMap();
-
-            CreateMap<ClassDepartmentDTO, ClassDepartment>().ReverseMap();
-            CreateMap<ClassDepartmentCreateDTO, ClassDepartment>();
-            CreateMap<ClassDepartmentUpdateDTO, ClassDepartment>();
 
 
         }

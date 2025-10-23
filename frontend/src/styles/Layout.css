@@ -1,0 +1,78 @@
+/* Layout Styles */
+.layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+}
+
+.main-content {
+    flex: 1;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+}
+
+.main-content.with-breadcrumb {
+    min-height: calc(100vh - 70px - 50px); /* navbar height - breadcrumb height */
+}
+
+.main-content.without-breadcrumb {
+    min-height: calc(100vh - 70px); /* just navbar height */
+}
+
+/* Content wrapper for consistent padding */
+.content-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        min-height: calc(100vh - 60px);
+    }
+    
+    .main-content.with-breadcrumb {
+        min-height: calc(100vh - 60px - 45px);
+    }
+    
+    .content-wrapper {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        min-height: calc(100vh - 55px);
+    }
+    
+    .main-content.with-breadcrumb {
+        min-height: calc(100vh - 55px - 40px);
+    }
+    
+    .content-wrapper {
+        padding: 10px;
+    }
+}
+
+/* Smooth scrolling for better UX */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus management for accessibility */
+.main-content:focus {
+    outline: none;
+}
+
+/* Print styles */
+@media print {
+    .layout {
+        background: white !important;
+    }
+    
+    .main-content {
+        min-height: auto !important;
+    }
+}

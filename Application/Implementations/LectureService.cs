@@ -108,6 +108,7 @@ namespace Application.Implementations
                 return null;
 
             _mapper.Map(dto, entity);
+            _manager.Lecture.Update(entity);
             _manager.Save();
 
             return _mapper.Map<LectureDTO>(entity);

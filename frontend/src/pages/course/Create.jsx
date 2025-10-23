@@ -25,7 +25,9 @@ const CreateCourse = () => {
         targetGradeLevel : "",
         courseOwnerID : accountId, // accountId varsa onu kullan, yoksa default 9002
         createdAt : new Date().toISOString(),
-        updatedAt : new Date().toISOString()
+        updatedAt : new Date().toISOString(),
+        courseAccessStatus : "Draft", // Yeni alan
+        isAccessible : false // Yeni alan
 
     })
     
@@ -62,15 +64,17 @@ const CreateCourse = () => {
             
             // Sonra kursu oluştur
             const submitData = {
-                courseId: randomnumber,
-                name: formData.name,
-                description: formData.description,
-                imageUrl: imageUrl, // Yüklenen dosya yolu veya manuel girilen URL
-                targetDepartmentId: formData.targetDepartmentId,
-                targetGradeLevel: formData.targetGradeLevel,
-                courseOwnerId: accountId,
-                createdAt: formData.createdAt,
-                updatedAt: formData.updatedAt
+                CourseId: randomnumber,
+                Name: formData.name,
+                Description: formData.description,
+                ImageUrl: imageUrl, // Yüklenen dosya yolu veya manuel girilen URL
+                TargetDepartmentId: parseInt(formData.targetDepartmentId),
+                TargetGradeLevel: parseInt(formData.targetGradeLevel),
+                CourseOwnerId: accountId,
+                CreatedAt: formData.createdAt,
+                UpdatedAt: formData.updatedAt,
+                CourseAccessStatus: formData.courseAccessStatus,
+                IsAccessible: formData.isAccessible
             };
 
             console.log('Kurs oluşturma verisi:', submitData);
@@ -100,7 +104,9 @@ const CreateCourse = () => {
                     targetGradeLevel: "",
                     courseOwnerID: accountId,
                     createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
+                    updatedAt: new Date().toISOString(),
+                    courseAccessStatus: "Draft",
+                    isAccessible: false
                 });
                 setSelectedFile(null);
                 navigate(`/course/${randomnumber}/lessons`);
@@ -272,6 +278,42 @@ const CreateCourse = () => {
                                 </select>
                             </div>
                             
+                            <div className="form-group">
+                                <label className="form-label">
+                                    🔓 Kurs Durumu
+                                </label>
+                                <select 
+                                    className="form-select"
+                                    onChange={handleChange}
+                                    value={formData.courseAccessStatus}
+                                    name='courseAccessStatus'
+                                    required
+                                >
+                                    <option value="Draft">📝 Taslak</option>
+                                    <option value="Published">✅ Yayında</option>
+                                    <option value="Archived">📦 Arşivlenmiş</option>
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">
+                                    👥 Öğrenci Erişimi
+                                </label>
+                                <div className="checkbox-wrapper">
+                                    <input 
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        onChange={(e) => setFormData({...formData, isAccessible: e.target.checked})}
+                                        checked={formData.isAccessible}
+                                        name='isAccessible'
+                                        id="isAccessible"
+                                    />
+                                    <label htmlFor="isAccessible" className="checkbox-label">
+                                        Öğrenciler bu kursa erişebilsin
+                                    </label>
+                                </div>
+                            </div>
+                            
                             <button 
                                 type="submit" 
                                 className="submit-btn"
@@ -312,6 +354,22 @@ const CreateCourse = () => {
                             <div className="preview-label">Sınıf Seviyesi:</div>
                             <div className={`preview-value ${!formData.targetGradeLevel ? 'empty' : ''}`}>
                                 {formData.targetGradeLevel ? `${formData.targetGradeLevel}. Sınıf` : "Seçilmedi"}
+                            </div>
+                        </div>
+                        
+                        <div className="preview-item">
+                            <div className="preview-label">Kurs Durumu:</div>
+                            <div className="preview-value">
+                                {formData.courseAccessStatus === "Draft" && "📝 Taslak"}
+                                {formData.courseAccessStatus === "Published" && "✅ Yayında"}
+                                {formData.courseAccessStatus === "Archived" && "📦 Arşivlenmiş"}
+                            </div>
+                        </div>
+                        
+                        <div className="preview-item">
+                            <div className="preview-label">Öğrenci Erişimi:</div>
+                            <div className="preview-value">
+                                {formData.isAccessible ? "✅ Açık" : "🔒 Kapalı"}
                             </div>
                         </div>
                         

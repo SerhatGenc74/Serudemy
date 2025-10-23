@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/home/index';
 import Admin from './pages/admin/index';
 import CourseDetail from './pages/course/Detail';
+import Courses from './pages/courses/index';
 import Profile from './pages/Profile/index';
 import Video from './pages/lesson/Video';
 import InstructorDashboard from './pages/dashboard/index';
@@ -15,101 +16,168 @@ import StudentLectureProgress from './pages/dashboard/StudentLectureProgress';
 import Login from './pages/login';
 import Register from './pages/login/register';
 import Unauthorized from './pages/Unauthorized';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/shared/ProtectedRoute';
 import EditLesson from './pages/lesson/edit';
 import EnrollStudents from './pages/course/EnrollStudents';
+import Layout from './components/shared/Layout';
 
 function App() {
   return (
       <Router>
         <div className="App">
           <Routes>
-            {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/courses/:courseId" element={<CourseDetail />} />
             
-            {/* Protected Routes - Sadece Giriş Yapmış Kullanıcılar */}
-            <Route path="/profile/:userId" element={
+            <Route path="/unauthorized" element={
+              <Layout>
+                <Unauthorized />
+              </Layout>
+            } />
+            
+            <Route path="/" element={
+              <Layout>
+                <Home />
+              </Layout>
+            } />
+            
+            <Route path="/courses" element={
+              <Layout>
+                <Courses />
+              </Layout>
+            } />
+            
+            <Route path="/courses/:courseId" element={
+              <Layout>
+                <CourseDetail />
+              </Layout>
+            } />
+            
+            <Route path="/course/:courseId/Video/:lectureId" element={
               <ProtectedRoute>
-                <Profile />
+                <Layout showBreadcrumb={false}>
+                  <Video />
+                </Layout>
               </ProtectedRoute>
             } />
             
-            <Route path="/course/:courseId/Video/:lectureId"  element={
+            <Route path="/profile/" element={
               <ProtectedRoute>
-                <Video />
+                <Layout>
+                  <Profile />
+                </Layout>
               </ProtectedRoute>
             } />
             
-            {/* Admin/Teacher Only Routes */}
             <Route path="/admin" element={
-              <ProtectedRoute allowedRole={['Öğretmen', 'Admin']}>
-                <Admin />
+              <ProtectedRoute allowedRole={['Teacher', 'Admin']}>
+                <Layout>
+                  <Admin />
+                </Layout>
               </ProtectedRoute>
             } />
             
-            <Route path="/instructor/dashboard" element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <InstructorDashboard />
+            <Route path="/dashboard" element={
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <InstructorDashboard />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/instructor/create-course" element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <CreateCourse />
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <CreateCourse />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/instructor/edit-course/:courseId" element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <EditCourse />
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <EditCourse />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/course/:courseId/lessons" element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <CourseLessons />
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <CourseLessons />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/course/:courseId/add-lesson" element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <CreateLesson />
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <CreateLesson />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/course/:courseId/students" element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <CourseStudents />
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <CourseStudents />
+                </Layout>
               </ProtectedRoute>
             } />
             
-            {/* Student Routes */}
             <Route path="/StudentCourse/course/:courseId/student/:studentId/lectures" 
             element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
-                <StudentLectureProgress />
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
+                  <StudentLectureProgress />
+                </Layout>
               </ProtectedRoute>
             } />
             
              <Route path='/course/:courseId/lecture/:lectureId/edit'
               element={
-              <ProtectedRoute allowedRole={['Öğretmen']}>
+              <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                <Layout>
                   <EditLesson />
+                </Layout>
                 </ProtectedRoute>} />
                 
                 <Route path='/course/:courseId/enroll-students' 
                 element={
-                  <ProtectedRoute allowedRole={['Öğretmen']}>
-                    <EnrollStudents />
+                  <ProtectedRoute allowedRole={['Teacher','Admin']}>
+                    <Layout>
+                      <EnrollStudents />
+                    </Layout>
                   </ProtectedRoute>
                 } />
 
-            {/* 404 Route */}
-            <Route path="*" element={<div>404 Not Found</div>} />
+            <Route path="*" element={
+              <Layout>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '60vh',
+                  textAlign: 'center',
+                  color: '#64748b'
+                }}>
+                  <h1 style={{ fontSize: '4rem', margin: '0 0 20px 0' }}>🔍</h1>
+                  <h2 style={{ margin: '0 0 10px 0' }}>Sayfa Bulunamadı</h2>
+                  <p style={{ margin: '0 0 30px 0' }}>Aradığınız sayfa mevcut değil.</p>
+                  <a href="/" style={{
+                    padding: '12px 24px',
+                    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600'
+                  }}>
+                    🏠 Ana Sayfaya Dön
+                  </a>
+                </div>
+              </Layout>
+            } />
           </Routes>
         </div>
       </Router>

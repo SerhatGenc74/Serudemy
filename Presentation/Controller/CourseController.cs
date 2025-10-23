@@ -28,6 +28,13 @@ namespace Presentation.Controller
             var courses = _service.CourseService.GetAllCourse();
             return Ok(courses);
         }
+
+        [HttpGet("admin")]
+        public IActionResult GetAllCourseForAdmin()
+        {
+            var courses = _service.CourseService.GetAllCourseForAdmin();
+            return Ok(courses);
+        }
         [HttpGet("random")]
         public async Task<IActionResult> GetRandomNumber()
         {
@@ -88,6 +95,114 @@ namespace Presentation.Controller
         {
             _service.CourseService.DeleteCourse(id);
             return NoContent();
+        }
+
+        // Course access control endpoints
+        [HttpPost("{courseId:int}/publish")]
+        public IActionResult PublishCourse([FromRoute(Name = "courseId")] int courseId)
+        {
+            try
+            {
+                var course = _service.CourseService.PublishCourse(courseId);
+                return Ok(new { message = "Course published successfully", course });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{courseId:int}/unpublish")]
+        public IActionResult UnpublishCourse([FromRoute(Name = "courseId")] int courseId)
+        {
+            try
+            {
+                var course = _service.CourseService.UnpublishCourse(courseId);
+                return Ok(new { message = "Course unpublished successfully", course });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{courseId:int}/archive")]
+        public IActionResult ArchiveCourse([FromRoute(Name = "courseId")] int courseId)
+        {
+            try
+            {
+                var course = _service.CourseService.ArchiveCourse(courseId);
+                return Ok(new { message = "Course archived successfully", course });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{courseId:int}/accessibility")]
+        public IActionResult SetCourseAccessibility([FromRoute(Name = "courseId")] int courseId, [FromBody] bool isAccessible)
+        {
+            try
+            {
+                var course = _service.CourseService.SetCourseAccessibility(courseId, isAccessible);
+                return Ok(new { message = $"Course accessibility set to {isAccessible}", course });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("published")]
+        public IActionResult GetPublishedCourses()
+        {
+            var courses = _service.CourseService.GetPublishedCourses();
+            return Ok(courses);
+        }
+
+        [HttpGet("accessible")]
+        public IActionResult GetAccessibleCourses()
+        {
+            var courses = _service.CourseService.GetAccessibleCourses();
+            return Ok(courses);
+        }
+
+        [HttpGet("{courseId:int}/is-accessible")]
+        public IActionResult IsCourseAccessible([FromRoute(Name = "courseId")] int courseId)
+        {
+            try
+            {
+                var course = _service.CourseService.GetCourse(courseId);
+                if (course == null)
+                    return NotFound(new { message = "Course not found" });
+
+                return Ok(new { 
+                    courseId = courseId,
+                    isAccessible = course.IsAccessible,
+                    courseAccessStatus = course.CourseAccessStatus
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

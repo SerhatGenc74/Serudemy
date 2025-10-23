@@ -34,7 +34,11 @@ namespace Application.Implementations
 
         public AccountDTO GetAccountById(int id)
         {
-            var entity = _manager.Account.FindByCondition(u=>u.Id == id, false);
+            var entity = _manager.Account
+                .FindAllByCondition(u => u.Id == id, false)
+                .Include(a => a.Department)
+                    .ThenInclude(d => d.Faculty)
+                .FirstOrDefault();
 
             return _mapper.Map<AccountDTO>(entity);
         }

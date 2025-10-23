@@ -16,12 +16,9 @@ namespace Application.Contracts
         public IStudentCourseService StudentCourse { get; }
         public IStudentProgressService StudentProgress { get; }
         public IFileService FileService { get; }
-        public IClassService ClassService { get; }
         public IDepartmentService DepartmentService { get; }
         public IFacultyService FacultyService { get; }
-        public IClassDepartmentService ClassDepartmentService { get; }
         public ICategoryService CategoryService { get; }
-        public IStudentClassService StudentClassService { get; }
         public IAuthService AuthService { get; }
     }
 }

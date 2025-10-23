@@ -547,3 +547,54 @@
 .preview-item {
     animation: fadeIn 0.6s ease-out;
 }
+
+/* Checkbox Stilleri */
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.form-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.form-checkbox:checked {
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.form-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.checkbox-label {
+    font-size: 1rem;
+    color: #374151;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+}
+
+.checkbox-wrapper:hover .form-checkbox {
+    border-color: #4f46e5;
+}
+
+.checkbox-wrapper:hover .checkbox-label {
+    color: #4f46e5;
+}

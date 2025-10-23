@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
-import '../../styles/LessonCreate.css';
 import useCurrentAccountId from '../../hooks/useAccountId';
+import useFileUpload from '../../hooks/useFileUpload';
+import '../../styles/LessonCreate.css';
 
 const EditLesson = () => {
     const { courseId, lectureId } = useParams();
@@ -12,355 +13,403 @@ const EditLesson = () => {
     // Mevcut ders bilgilerini al
     const { data: lecture, loading, error } = useFetch(`http://localhost:5225/api/lecture/${lectureId}`);
     
+    // Form state
     const [formData, setFormData] = useState({
         name: '',
-        videoDesc: '',
-        courseId: courseId || ''
+        videoDesc: ''
     });
     
+    // Video upload state
     const [selectedVideoFile, setSelectedVideoFile] = useState(null);
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentVideoUrl, setCurrentVideoUrl] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState('');
+    
+    const { upload } = useFileUpload();
 
-    // Ders bilgileri geldiğinde form'u doldur
     useEffect(() => {
         if (lecture) {
             setFormData({
                 name: lecture.name || '',
-                videoDesc: lecture.videoDesc || '',
-                courseId: courseId || ''
+                videoDesc: lecture.videoDesc || ''
             });
             setVideoDuration(lecture.lectureDuration || 0);
             setCurrentVideoUrl(lecture.videoUrl || '');
         }
-    }, [lecture, courseId]);
+    }, [lecture]);
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+    // Form handlers
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleVideoFileChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            // Video file size kontrolü (100MB limit)
-            if (file.size > 100 * 1024 * 1024) {
-                alert('Video dosyası boyutu 100MB\'dan küçük olmalıdır');
-                return;
-            }
-            
-            // Video type kontrolü
-            if (!file.type.startsWith('video/')) {
-                alert('Lütfen geçerli bir video dosyası seçin');
-                return;
-            }
-            
-            setSelectedVideoFile(file);
-            
-            // Video süresini otomatik al
-            const video = document.createElement('video');
-            video.preload = 'metadata';
-            
-            video.onloadedmetadata = function() {
-                window.URL.revokeObjectURL(video.src);
-                const duration = Math.round(video.duration / 60); // dakikaya çevir
-                setVideoDuration(duration);
-                console.log('Video süresi:', duration, 'dakika');
-            };
-            
-            video.src = URL.createObjectURL(file);
+        if (!file) return;
+        
+        // File size check (100MB limit)
+        if (file.size > 100 * 1024 * 1024) {
+            alert('Video dosyası boyutu 100MB\'dan küçük olmalıdır');
+            return;
         }
+        
+        // Video type check
+        if (!file.type.startsWith('video/')) {
+            alert('Lütfen geçerli bir video dosyası seçin');
+            return;
+        }
+        
+        setSelectedVideoFile(file);
+    console.debug('[EditLesson] selected video file:', file.name, file.size, file.type);
+        
+        // Get video duration automatically
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        
+        video.onloadedmetadata = function() {
+            window.URL.revokeObjectURL(video.src);
+            const duration = Math.round(video.duration);
+            setVideoDuration(duration);
+        };
+        
+        video.src = URL.createObjectURL(file);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!formData.name.trim()) {
+            alert('Lütfen ders adını girin');
+            return;
+        }
+        
         setIsSubmitting(true);
         setSubmitMessage('');
         
         try {
-            let videoUrl = currentVideoUrl;
-            let videoName = lecture?.videoName;
+            let videoUrl = currentVideoUrl; // Use existing video URL
             
-            // Yeni video dosyası seçilmişse yükle
+            // If new video selected, upload it
             if (selectedVideoFile) {
-                console.log('Video güncelleniyor:', selectedVideoFile.name);
-                const fileFormData = new FormData();
-                fileFormData.append('file', selectedVideoFile);
-                
-                // Existing file path query parameter olarak gönder
-                const existingFilePath = currentVideoUrl || '';
-                const updateUrl = `http://localhost:5225/api/file/update?existingFilePath=${encodeURIComponent(existingFilePath)}`;
-                
-                const fileResponse = await fetch(updateUrl, {
-                    method: 'PUT',
-                    body: fileFormData
-                });
-                
-                if (fileResponse.ok) {
-                    const fileResult = await fileResponse.json();
-                    videoUrl = fileResult.filePath;
-                    videoName = selectedVideoFile.name;
-                    console.log('Video güncellendi:', fileResult);
-                } else {
-                    throw new Error('Video güncelleme başarısız');
-                }
+                console.debug('[EditLesson] uploading file...');
+                const videoResult = await upload(selectedVideoFile);
+                console.debug('[EditLesson] upload returned:', videoResult);
+                videoUrl = videoResult.filePath || videoResult.path || videoResult.fileUrl || '';
             }
             
-            // Dersi güncelle
-            const submitData = {
-                name: formData.name,
-                videoName: videoName,
-                videoDesc: formData.videoDesc,
-                videoUrl: videoUrl,
-                lectureOrder: lecture?.lectureOrder,
-                lectureDuration: videoDuration,
-                coursesId: parseInt(courseId),
-                updatedAt: new Date().toISOString()
+            const updateData = {
+                Name: formData.name.trim(),
+                VideoDesc: formData.videoDesc.trim(),
+                VideoUrl: videoUrl,
+                CoursesId: parseInt(courseId),
+                LectureDuration: videoDuration,
+                UpdatedAt: new Date().toISOString()
             };
-            
-            console.log('Ders güncelleme verisi:', submitData);
-
             const response = await fetch(`http://localhost:5225/api/lecture/${lectureId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(submitData)
+                body: JSON.stringify(updateData)
             });
-            
+            let responseBody;
+            try {
+                responseBody = await response.clone().json();
+            } catch {
+                responseBody = await response.text();
+            }
+            console.debug('[EditLesson] PUT /api/lecture response:', response.status, responseBody);
             if (response.ok) {
                 setSubmitMessage('✅ Ders başarıyla güncellendi!');
                 setTimeout(() => {
                     navigate(`/course/${courseId}/lessons`);
                 }, 2000);
             } else {
-                const errorData = await response.text();
-                throw new Error(errorData || 'Ders güncellenirken bir hata oluştu.');
+                throw new Error(responseBody || 'Ders güncellenirken bir hata oluştu.');
             }
+            
         } catch (error) {
-            console.error('Error updating lesson:', error);
-            setSubmitMessage(`❌ Hata: ${error.message}`);
+            console.error('Hata:', error);
+            setSubmitMessage('❌ Hata: ' + error.message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    if (loading) return (
-        <div className="lesson-create-container">
-            <div className="loading-container">
-                <div className="loading-spinner">🔄</div>
-                <div className="loading-text">Ders bilgileri yükleniyor...</div>
+    const handleCancel = () => {
+        navigate(`/course/${courseId}/lessons`);
+    };
+
+    const formatDuration = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
+    const formatFileSize = (bytes) => {
+        return (bytes / (1024 * 1024)).toFixed(2);
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="lesson-create-container">
+                <div className="loading-container">
+                    <div className="loading-spinner">🔄</div>
+                    <div className="loading-text">Ders bilgileri yükleniyor...</div>
+                </div>
             </div>
-        </div>
-    );
-    
-    if (error || !lecture) return (
-        <div className="lesson-create-container">
-            <div className="error-container">
-                <div className="error-text">❌ Hata: {error?.message || 'Ders bulunamadı'}</div>
-                <button 
-                    className="btn btn-cancel"
-                    onClick={() => navigate(`/course/${courseId}/lessons`)}
-                >
-                    ← Derslere Dön
-                </button>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="lesson-create-container">
+                <div className="error-container">
+                    <div className="error-text">❌ Hata: {error.message}</div>
+                    <button 
+                        className="btn-cancel"
+                        onClick={() => navigate(`/course/${courseId}/lessons`)}
+                    >
+                        ← Geri Dön
+                    </button>
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 
     return (
         <div className="lesson-create-container">
-            <div className="lesson-create-content">
-                <a 
-                    href={`/course/${courseId}/lessons`} 
-                    className="back-button"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate(`/course/${courseId}/lessons`);
-                    }}
-                >
-                    ← Derslere Geri Dön
-                </a>
-                
-                <div className="lesson-create-header">
-                    <h1 className="lesson-create-title">✏️ Ders Düzenle</h1>
-                    <p className="lesson-create-subtitle">Ders bilgilerini güncelleyin</p>
+            {/* Header */}
+            <div className="lesson-create-header">
+                <h1 className="lesson-create-title">✏️ Ders Düzenle</h1>
+                <p className="lesson-create-subtitle">
+                    Mevcut dersinizi düzenleyin ve güncellemeleri kaydedin
+                </p>
+                <div className="course-info">
+                    <span className="course-badge">📚 Kurs ID: {courseId}</span>
+                    <span className="lesson-badge">📝 Ders ID: {lectureId}</span>
                 </div>
+            </div>
 
-                <div className="lesson-content-grid">
-                    <div className="lesson-form-container">
-                        <form onSubmit={handleSubmit} className="lesson-form">
-                            <div className="form-section-title">📝 Ders Bilgileri</div>
+            {/* Main Content */}
+            <div className="lesson-content-grid">
+                {/* Form Section */}
+                <div className="lesson-form-container">
+                    <form className="lesson-form" onSubmit={handleSubmit}>
+                        <div className="form-section">
+                            <h2 className="section-title">📚 Ders Bilgileri</h2>
                             
-                            <div className="form-group full-width">
-                                <label className="form-label">
-                                    📖 Ders Adı
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="name">
+                                    Ders Adı *
                                 </label>
                                 <input
+                                    className="form-input"
                                     type="text"
+                                    id="name"
                                     name="name"
                                     value={formData.name}
-                                    onChange={handleChange}
-                                    className="form-input"
-                                    placeholder="Ders adını girin..."
+                                    onChange={handleInputChange}
+                                    placeholder="Örn: React Hooks Kullanımı"
                                     required
                                 />
                             </div>
 
-                            <div className="form-group full-width">
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="videoDesc">
+                                    Ders Açıklaması
+                                </label>
+                                <textarea
+                                    className="form-textarea"
+                                    id="videoDesc"
+                                    name="videoDesc"
+                                    value={formData.videoDesc}
+                                    onChange={handleInputChange}
+                                    placeholder="Bu derste öğrencileriniz ne öğrenecek? Kısa bir açıklama yazın..."
+                                    rows="4"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-section">
+                            <h2 className="section-title">🎥 Video Güncelle</h2>
+                            
+                            {/* Current Video Info */}
+                            {currentVideoUrl && !selectedVideoFile && (
+                                <div className="current-video-info">
+                                    <div className="current-video-header">
+                                        <span className="video-icon">🎬</span>
+                                        <span>Mevcut Video</span>
+                                    </div>
+                                    <div className="current-video-details">
+                                        <div className="video-detail-item">
+                                            <span className="detail-label">⏱️ Süre:</span>
+                                            <span className="detail-value">{formatDuration(videoDuration)}</span>
+                                        </div>
+                                        <div className="video-detail-item">
+                                            <span className="detail-label">🔗 URL:</span>
+                                            <span className="detail-value">{currentVideoUrl}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
                                 <label className="form-label">
-                                    🎥 Video Dosyası
+                                    {currentVideoUrl ? 'Yeni Video Dosyası (Opsiyonel)' : 'Video Dosyası *'}
                                 </label>
                                 <div className="file-input-wrapper">
                                     <input
-                                        type="file"
                                         className="file-input"
+                                        type="file"
+                                        id="video"
                                         accept="video/*"
                                         onChange={handleVideoFileChange}
-                                        id="video-input"
                                     />
-                                    <label htmlFor="video-input" className="file-input-label">
-                                        <span className="file-input-icon">🎬</span>
-                                        <div className="file-info">
-                                            <div className="file-name">
-                                                {selectedVideoFile 
-                                                    ? selectedVideoFile.name 
-                                                    : (lecture?.videoName || "Mevcut video (değiştirmek için seçin)")
-                                                }
-                                            </div>
-                                            <div className="file-hint">MP4, AVI, MOV formatında (Max: 100MB)</div>
-                                            {videoDuration > 0 && (
-                                                <div className="video-duration">
-                                                    ⏱️ Süre: {videoDuration} dakika
+                                    <label className="file-input-label" htmlFor="video">
+                                        <div className="file-input-content">
+                                            <span className="file-input-icon">
+                                                {selectedVideoFile ? '🎬' : '📁'}
+                                            </span>
+                                            <div className="file-input-text">
+                                                <div className="file-input-title">
+                                                    {selectedVideoFile 
+                                                        ? selectedVideoFile.name 
+                                                        : currentVideoUrl 
+                                                            ? 'Yeni Video Seçin (Mevcut video korunacak)'
+                                                            : 'Video Dosyası Seçin'
+                                                    }
                                                 </div>
-                                            )}
+                                                <div className="file-input-hint">
+                                                    MP4, WebM, AVI formatları desteklenir (Max: 100MB)
+                                                </div>
+                                            </div>
                                         </div>
                                     </label>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="form-group full-width">
-                                <label className="form-label">
-                                    📝 Video Açıklaması
-                                </label>
-                                <textarea
-                                    name="videoDesc"
-                                    value={formData.videoDesc}
-                                    onChange={handleChange}
-                                    className="form-textarea"
-                                    placeholder="Video hakkında açıklama yazın..."
-                                    required
-                                ></textarea>
-                            </div>
-
-                            {submitMessage && (
-                                <div className={`submit-message ${submitMessage.includes('✅') ? 'success' : 'error'}`}>
-                                    {submitMessage}
-                                </div>
-                            )}
-
-                            <div className="form-actions">
-                                <button
-                                    type="button"
-                                    className="btn btn-cancel"
-                                    onClick={() => navigate(`/course/${courseId}/lessons`)}
-                                    disabled={isSubmitting}
-                                >
-                                    ❌ İptal
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-submit"
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <span className="loading-spinner">🔄</span>
-                                            Güncelleniyor...
-                                        </>
-                                    ) : (
-                                        <>✅ Dersi Güncelle</>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    {/* Preview Section */}
-                    <div className="lesson-preview-container">
-                        <div className="form-section-title">👁️ Ön İzleme</div>
-                        
-                        <div className="lesson-preview-card">
-                            <div className="lesson-preview-header">
-                                <div className="lesson-number">#{lecture?.lectureOrder || '?'}</div>
-                                <div className="lesson-meta">
-                                    <span className="lesson-badge">📹 Video Ders</span>
-                                    {videoDuration > 0 && (
-                                        <span className="duration-badge">⏱️ {videoDuration} dk</span>
-                                    )}
-                                </div>
-                            </div>
+                        {/* Form Actions */}
+                        <div className="form-actions">
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="btn-submit"
+                            >
+                                {isSubmitting ? (
+                                    <><span className="spinner">🔄</span> Ders Güncelleniyor...</>
+                                ) : (
+                                    <>✅ Değişiklikleri Kaydet</>
+                                )}
+                            </button>
                             
-                            <div className="lesson-preview-content">
-                                <h3 className="lesson-preview-title">
-                                    {formData.name || "Ders başlığı..."}
-                                </h3>
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                className="btn-cancel"
+                                disabled={isSubmitting}
+                            >
+                                ❌ İptal Et
+                            </button>
+                        </div>
+
+                        {/* Submit Message */}
+                        {submitMessage && (
+                            <div className={`submit-message ${submitMessage.includes('✅') ? 'success' : 'error'}`}>
+                                {submitMessage}
+                            </div>
+                        )}
+                    </form>
+                </div>
+
+                {/* Preview Section */}
+                <div className="lesson-preview-section">
+                    <div className="lesson-preview-container">
+                        <h2 className="lesson-preview-header">📋 Ders Önizleme</h2>
+                        
+                        <div className="preview-content">
+                            {/* Lesson Info Preview */}
+                            <div className="preview-section">
+                                <h3 className="preview-section-title">📚 Ders Bilgileri</h3>
+                                <div className="preview-item">
+                                    <strong>Ders Adı:</strong>
+                                    <span>{formData.name || 'Henüz girilmedi'}</span>
+                                </div>
+                                <div className="preview-item">
+                                    <strong>Açıklama:</strong>
+                                    <span>{formData.videoDesc || 'Henüz girilmedi'}</span>
+                                </div>
+                            </div>
+
+                            {/* Video Preview */}
+                            <div className="preview-section">
+                                <h3 className="preview-section-title">🎥 Video Bilgileri</h3>
                                 
-                                <div className="video-preview-section">
-                                    {selectedVideoFile ? (
-                                        <div className="video-preview-info">
-                                            <div className="video-icon">🎬</div>
-                                            <div className="video-details">
-                                                <div className="video-name">{selectedVideoFile.name}</div>
-                                                <div className="video-size">
-                                                    {(selectedVideoFile.size / (1024 * 1024)).toFixed(2)} MB
+                                {selectedVideoFile ? (
+                                    <div className="video-preview-info">
+                                        <div className="video-preview-status">🆕 Yeni video seçildi</div>
+                                        <div className="video-details">
+                                            <div className="video-detail-item">
+                                                <span className="detail-label">📁 Dosya:</span>
+                                                <span className="detail-value">{selectedVideoFile.name}</span>
+                                            </div>
+                                            <div className="video-detail-item">
+                                                <span className="detail-label">📊 Boyut:</span>
+                                                <span className="detail-value">{formatFileSize(selectedVideoFile.size)} MB</span>
+                                            </div>
+                                            <div className="video-detail-item">
+                                                <span className="detail-label">🎬 Tip:</span>
+                                                <span className="detail-value">{selectedVideoFile.type}</span>
+                                            </div>
+                                            {videoDuration > 0 && (
+                                                <div className="video-detail-item">
+                                                    <span className="detail-label">⏱️ Süre:</span>
+                                                    <span className="detail-value">{formatDuration(videoDuration)}</span>
                                                 </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : currentVideoUrl ? (
+                                    <div className="video-preview-info">
+                                        <div className="video-preview-status">📹 Mevcut video korunacak</div>
+                                        <div className="video-details">
+                                            <div className="video-detail-item">
+                                                <span className="detail-label">🔗 URL:</span>
+                                                <span className="detail-value">{currentVideoUrl}</span>
+                                            </div>
+                                            <div className="video-detail-item">
+                                                <span className="detail-label">⏱️ Süre:</span>
+                                                <span className="detail-value">{formatDuration(videoDuration)}</span>
                                             </div>
                                         </div>
-                                    ) : currentVideoUrl ? (
-                                        <div className="video-preview-info">
-                                            <div className="video-icon">🎬</div>
-                                            <div className="video-details">
-                                                <div className="video-name">{lecture?.videoName || 'Mevcut video'}</div>
-                                                <div className="video-size">Mevcut video dosyası</div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="video-placeholder">
-                                            <div className="placeholder-icon">🎥</div>
-                                            <div className="placeholder-text">Video henüz seçilmedi</div>
-                                        </div>
-                                    )}
-                                </div>
+                                    </div>
+                                ) : (
+                                    <div className="video-placeholder">
+                                        <div className="placeholder-icon">🎥</div>
+                                        <div className="placeholder-text">Video bilgisi bulunamadı</div>
+                                    </div>
+                                )}
+                            </div>
 
-                                <div className="lesson-description-preview">
-                                    <h4>📄 Açıklama</h4>
-                                    <p>{formData.videoDesc || "Ders açıklaması henüz girilmedi..."}</p>
-                                </div>
-
-                                <div className="lesson-stats-preview">
-                                    <div className="stat-item">
-                                        <span className="stat-label">📊 Sıra:</span>
-                                        <span className="stat-value">{lecture?.lectureOrder || '?'}. ders</span>
+                            {/* Course Info */}
+                            <div className="preview-section">
+                                <h3 className="preview-section-title">📖 Kurs Bilgileri</h3>
+                                <div className="course-preview-info">
+                                    <div className="course-detail">
+                                        <span className="detail-label">🆔 Kurs ID:</span>
+                                        <span className="detail-value">{courseId}</span>
                                     </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">⏰ Süre:</span>
-                                        <span className="stat-value">{videoDuration || '?'} dakika</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">📁 Video:</span>
-                                        <span className="stat-value">
-                                            {selectedVideoFile ? '🔄 Yeni seçildi' : 
-                                             currentVideoUrl ? '✅ Mevcut' : '❌ Yok'}
-                                        </span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">📅 Durum:</span>
-                                        <span className="stat-value">✏️ Düzenleniyor</span>
+                                    <div className="course-detail">
+                                        <span className="detail-label">📝 Ders ID:</span>
+                                        <span className="detail-value">{lectureId}</span>
                                     </div>
                                 </div>
                             </div>

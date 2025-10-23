@@ -67,6 +67,19 @@ namespace Application.Implementations
 
         public IQueryable<CourseDTO> GetAllCourse()
         {
+            // Get only accessible and published courses (for students)
+            var entity = _manager.Course
+                .FindAllByCondition(c => c.IsAccessible && c.CourseAccessStatus == CourseAccessStatus.Published, false)
+                .Include(c => c.CourseOwner)
+                .Include(c => c.Lectures)
+                .Include(c => c.TargetDepartment);
+
+            return _mapper.ProjectTo<CourseDTO>(entity);
+        }
+
+        public IQueryable<CourseDTO> GetAllCourseForAdmin()
+        {
+            // Get all courses regardless of status (for admins/teachers)
             var entity = _manager.Course
                 .FindAll(false)
                 .Include(c => c.CourseOwner)
@@ -79,7 +92,8 @@ namespace Application.Implementations
         public CourseDTO GetCourse(int courseId)
         {
             var entity = _manager.Course
-                .FindAllByCondition(x => x.CourseId == courseId, false)                .Include(c => c.CourseOwner)
+                .FindAllByCondition(x => x.CourseId == courseId, false)
+                .Include(c => c.CourseOwner)
                 .Include(c => c.Lectures)
                 .Include(c => c.TargetDepartment)
                 .FirstOrDefault();
@@ -114,11 +128,108 @@ namespace Application.Implementations
             course.TargetGradeLevel = dto.TargetGradeLevel;
             course.UpdatedAt = dto.UpdatedAt ?? DateTime.Now;
 
+            // Update new course access control fields
+            if (!string.IsNullOrWhiteSpace(dto.CourseAccessStatus) && 
+                Enum.TryParse<CourseAccessStatus>(dto.CourseAccessStatus, true, out var accessStatus))
+            {
+                course.CourseAccessStatus = accessStatus;
+            }
+            
+            if (dto.IsAccessible.HasValue)
+            {
+                course.IsAccessible = dto.IsAccessible.Value;
+            }
+
             // No need to call Update() on tracked entities - just save changes
             _manager.Save();
 
             return _mapper.Map<CourseDTO>(course);
 
+        }
+
+        public CourseDTO PublishCourse(int courseId)
+        {
+            var course = _manager.Course.FindByCondition(u => u.CourseId == courseId, true);
+            
+            if (course == null)
+                throw new ArgumentException($"Course with CourseId {courseId} not found.");
+
+            course.CourseAccessStatus = CourseAccessStatus.Published;
+            course.IsAccessible = true;
+            course.UpdatedAt = DateTime.Now;
+
+            _manager.Save();
+
+            return _mapper.Map<CourseDTO>(course);
+        }
+
+        public CourseDTO UnpublishCourse(int courseId)
+        {
+            var course = _manager.Course.FindByCondition(u => u.CourseId == courseId, true);
+            
+            if (course == null)
+                throw new ArgumentException($"Course with CourseId {courseId} not found.");
+
+            course.CourseAccessStatus = CourseAccessStatus.Draft;
+            course.IsAccessible = false;
+            course.UpdatedAt = DateTime.Now;
+
+            _manager.Save();
+
+            return _mapper.Map<CourseDTO>(course);
+        }
+
+        public CourseDTO ArchiveCourse(int courseId)
+        {
+            var course = _manager.Course.FindByCondition(u => u.CourseId == courseId, true);
+            
+            if (course == null)
+                throw new ArgumentException($"Course with CourseId {courseId} not found.");
+
+            course.CourseAccessStatus = CourseAccessStatus.Archived;
+            course.IsAccessible = false;
+            course.UpdatedAt = DateTime.Now;
+
+            _manager.Save();
+
+            return _mapper.Map<CourseDTO>(course);
+        }
+
+        public CourseDTO SetCourseAccessibility(int courseId, bool isAccessible)
+        {
+            var course = _manager.Course.FindByCondition(u => u.CourseId == courseId, true);
+            
+            if (course == null)
+                throw new ArgumentException($"Course with CourseId {courseId} not found.");
+
+            course.IsAccessible = isAccessible;
+            course.UpdatedAt = DateTime.Now;
+
+            _manager.Save();
+
+            return _mapper.Map<CourseDTO>(course);
+        }
+
+        public IQueryable<CourseDTO> GetPublishedCourses()
+        {
+            var entity = _manager.Course
+                .FindAllByCondition(c => c.CourseAccessStatus == CourseAccessStatus.Published, false)
+                .Include(c => c.CourseOwner)
+                .Include(c => c.Lectures)
+                .Include(c => c.TargetDepartment);
+
+            return _mapper.ProjectTo<CourseDTO>(entity);
+        }
+
+        public IQueryable<CourseDTO> GetAccessibleCourses()
+        {
+            var entity = _manager.Course
+                .FindAllByCondition(c => c.IsAccessible && c.CourseAccessStatus == CourseAccessStatus.Published, false)
+                .Include(c => c.CourseOwner)
+                .Include(c => c.Lectures)
+                .Include(c => c.TargetDepartment);
+
+            return _mapper.ProjectTo<CourseDTO>(entity);
         }
 
     }

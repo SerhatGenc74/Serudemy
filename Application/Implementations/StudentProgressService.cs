@@ -133,6 +133,8 @@ namespace Application.Implementations
         public StudentProgressDTO CreateStudentProgress(StudentProgressCreateDTO dto)
         {
             var entity = _mapper.Map<StudentProgress>(dto);
+            
+            // LastUpdate otomatik ayarlanır (IsRowVersion) - Manuel set etmeye gerek yok
 
             _manager.StudentProgress.Create(entity);
             _manager.Save();
@@ -142,13 +144,26 @@ namespace Application.Implementations
 
         public StudentProgressDTO UpdateStudentProgress(StudentProgressUpdateDTO dto, int id)
         {
-            var entity = _manager.StudentProgress.FindByCondition(sp => sp.Id == id, false);
+            // trackChanges: true - EF entity'yi izlesin ki update çalışsın
+            var entity = _manager.StudentProgress.FindByCondition(sp => sp.Id == id, trackChanges: true);
             if (entity == null)
                 return null;
 
-            _mapper.Map(dto, entity);
-            _manager.StudentProgress.Update(entity);
+            // Tüm alanları güncelle ve force update için farklı değer ata sonra doğrusunu ata
+            var originalCompleted = entity.LecturesCompleted;
+            entity.LecturesCompleted = !dto.LecturesCompleted; // Önce tersini ata
+            entity.LecturesCompleted = dto.LecturesCompleted;  // Sonra doğrusunu ata
+            
+            entity.AccountId = dto.AccountId;
+            entity.LecturesId = dto.LecturesId;
+            entity.ProgressPerc = dto.ProgressPerc;
+            entity.WatchedSeconds = dto.WatchedSeconds;
+            entity.PlaybackPosition = dto.PlaybackPosition;
+            
+            
             _manager.Save();
+            
+;
 
             return _mapper.Map<StudentProgressDTO>(entity);
         }
@@ -181,6 +196,13 @@ namespace Application.Implementations
                 .Include(sp => sp.Account);
 
             return _mapper.ProjectTo<StudentProgressDTO>(entities);
+        }
+        public StudentProgressDTO IsAlreadyHaveProgress(int studentId, int lectureId)
+        {
+            var entity = _manager.StudentProgress
+                .FindByCondition(u=>u.AccountId == studentId && u.LecturesId == lectureId, false);
+
+            return _mapper.Map<StudentProgressDTO>(entity);
         }
 
         private bool IsLessonCompleted(int studentId, int lessonId)

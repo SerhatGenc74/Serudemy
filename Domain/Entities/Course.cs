@@ -27,6 +27,10 @@ public partial class Course
 
     public int? TargetGradeLevel { get; set; }
 
+    public CourseAccessStatus CourseAccessStatus { get; set; } = CourseAccessStatus.Draft;
+
+    public bool IsAccessible { get; set; } = false;
+
     public virtual Category? Category { get; set; }
 
     public virtual Account? CourseOwner { get; set; }

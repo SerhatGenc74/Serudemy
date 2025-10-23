@@ -82,6 +82,33 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+// Uploads klasörleri oluştur
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
+var imagesPath = Path.Combine(uploadsPath, "images");
+if (!Directory.Exists(imagesPath))
+{
+    Directory.CreateDirectory(imagesPath);
+}
+
+var videosPath = Path.Combine(uploadsPath, "videos");
+if (!Directory.Exists(videosPath))
+{
+    Directory.CreateDirectory(videosPath);
+}
+
+// Static file serving for uploads
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 // Add CORS middleware (must be before UseRouting)
 app.UseCors("AllowReactApp"); // or "AllowAll" for development

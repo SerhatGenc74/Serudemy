@@ -27,6 +27,10 @@ namespace Contracts.DTOs
         public int? TargetDepartmentId { get; init; }
 
         public int? TargetGradeLevel { get; init; }
+
+        public string? CourseAccessStatus { get; init; }
+
+        public bool IsAccessible { get; init; }
         
         // Navigation Properties
         public CategoryDTO? Category { get; init; }
