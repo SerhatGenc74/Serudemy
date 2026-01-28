@@ -1,0 +1,30 @@
+# Environment-specific config files
+Serudemy/appsettings*.json
+Serudemy/!appsettings.json
+
+# Ignore user-specific project files
+Serudemy/Serudemy.csproj.user
+
+
+# Ignore bundler config if not needed
+Serudemy/bundleconfig.json
+
+.vs/
+*.user
+*.suo
+
+# Ignore bin and obj folders
+**/bin/
+**/obj/
+
+# Ignore Properties folder (vs metadata)
+*/Properties/
+
+# Ignore wwwroot content except .gitkeep files in images and videos
+Serudemy/uploads/images/*
+Serudemy/uploads/videos/*
+!Serudemy/uploads/images/.gitkeep
+!Serudemy/uploads/videos/.gitkeep
+Infrastructure/Migrations
+
+output/

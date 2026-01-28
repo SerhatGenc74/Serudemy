@@ -1,0 +1,2 @@
+﻿# Tüm CSS dosyalarını dil istatistiklerinden çıkar
+*.css linguist-vendored

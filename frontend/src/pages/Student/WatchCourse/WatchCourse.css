@@ -1,0 +1,1368 @@
+/* ==========================================
+   BTK Akademi Style - Watch Course Page
+   ========================================== */
+
+/* Base Styles */
+.watch-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #0d1117;
+  color: #e6edf3;
+  margin: -24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* ==========================================
+   Navigation Bar
+   ========================================== */
+.watch-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
+  background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+  border-bottom: 1px solid #30363d;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.watch-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.watch-navbar-center {
+  flex: 0 0 auto;
+  padding: 0 24px;
+}
+
+.watch-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.watch-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #8b949e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.watch-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e6edf3;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.watch-nav-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.watch-course-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.watch-course-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7ee787;
+  font-weight: 600;
+}
+
+.watch-course-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+/* Progress Info */
+.watch-progress-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.watch-progress-bar-wrapper {
+  width: 200px;
+}
+
+.watch-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.watch-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7ee787 0%, #56d364 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.watch-progress-text {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+/* ==========================================
+   Main Content Area
+   ========================================== */
+.watch-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.watch-video-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.watch-video-area.expanded {
+  margin-right: 0;
+}
+
+/* ==========================================
+   Video Container & Player
+   ========================================== */
+.watch-video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  cursor: pointer;
+}
+
+.watch-video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* Play Overlay */
+.watch-play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.watch-play-button {
+  width: 80px;
+  height: 80px;
+  background: rgba(126, 231, 135, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(126, 231, 135, 0.4);
+}
+
+.watch-play-button:hover {
+  transform: scale(1.1);
+  background: #7ee787;
+}
+
+.watch-play-button svg {
+  width: 36px;
+  height: 36px;
+  color: #0d1117;
+  margin-left: 4px;
+}
+
+/* Completed Video Overlay */
+.watch-video-completed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(13, 17, 23, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+.watch-completed-content {
+  text-align: center;
+  padding: 40px;
+  max-width: 500px;
+  animation: fadeInScale 0.4s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.watch-completed-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, #7ee787 0%, #56d364 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(126, 231, 135, 0.3);
+}
+
+.watch-completed-icon svg {
+  width: 48px;
+  height: 48px;
+  color: #0d1117;
+  display: block;
+}
+
+.watch-completed-content h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 12px 0;
+}
+
+.watch-completed-content p {
+  font-size: 16px;
+  color: #8b949e;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+.watch-replay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0d1117;
+  background: linear-gradient(135deg, #7ee787 0%, #56d364 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(126, 231, 135, 0.3);
+}
+
+.watch-replay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(126, 231, 135, 0.4);
+}
+
+.watch-replay-btn:active {
+  transform: translateY(0);
+}
+
+.watch-replay-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Course Completion Overlay */
+.watch-course-completion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(13, 17, 23, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.watch-completion-content {
+  text-align: center;
+  padding: 60px 40px;
+  max-width: 600px;
+  animation: slideUpFade 0.6s ease;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.watch-completion-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 32px;
+  background: linear-gradient(135deg, #7ee787 0%, #56d364 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 48px rgba(126, 231, 135, 0.4);
+  animation: bounce 1s ease;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.watch-completion-icon svg {
+  width: 60px;
+  height: 60px;
+  color: #0d1117;
+  display: block;
+}
+
+.watch-completion-content h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #7ee787;
+  margin: 0 0 16px 0;
+  text-shadow: 0 0 30px rgba(126, 231, 135, 0.3);
+}
+
+.watch-completion-content h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 20px 0;
+}
+
+.watch-completion-content p {
+  font-size: 16px;
+  color: #8b949e;
+  margin: 0 0 40px 0;
+  line-height: 1.7;
+}
+
+.watch-completion-content p strong {
+  color: #e6edf3;
+  font-weight: 600;
+}
+
+.watch-completion-stats {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  margin-bottom: 40px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.watch-completion-stat {
+  text-align: center;
+}
+
+.watch-completion-stat .stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #7ee787;
+  margin-bottom: 8px;
+}
+
+.watch-completion-stat .stat-label {
+  font-size: 14px;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.watch-completion-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.watch-completion-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.watch-completion-btn.primary {
+  color: #0d1117;
+  background: linear-gradient(135deg, #7ee787 0%, #56d364 100%);
+  box-shadow: 0 4px 20px rgba(126, 231, 135, 0.3);
+}
+
+.watch-completion-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(126, 231, 135, 0.4);
+}
+
+.watch-completion-btn.secondary {
+  color: #e6edf3;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.watch-completion-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.watch-completion-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Video Controls */
+.watch-video-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+  padding: 40px 16px 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.watch-video-controls.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.watch-progress-container {
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.watch-video-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  position: relative;
+  transition: height 0.1s ease;
+}
+
+.watch-progress-container:hover .watch-video-progress {
+  height: 6px;
+}
+
+.watch-video-progress-filled {
+  height: 100%;
+  background: #7ee787;
+  border-radius: 2px;
+  position: relative;
+}
+
+.watch-video-progress-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: #7ee787;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.watch-progress-container:hover .watch-video-progress-handle {
+  opacity: 1;
+}
+
+.watch-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.watch-controls-left,
+.watch-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.watch-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: #e6edf3;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.watch-control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.watch-control-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  pointer-events: none;
+}
+
+/* Volume Control */
+.watch-volume-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.watch-volume-slider {
+  width: 0;
+  opacity: 0;
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.watch-volume-control:hover .watch-volume-slider {
+  width: 80px;
+  opacity: 1;
+}
+
+.watch-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #7ee787;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.watch-time-display {
+  font-size: 13px;
+  color: #e6edf3;
+  font-variant-numeric: tabular-nums;
+  margin-left: 8px;
+}
+
+/* Speed Control */
+.watch-speed-control {
+  position: relative;
+}
+
+.watch-speed-btn {
+  width: auto;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.watch-speed-menu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 8px 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.watch-speed-control:hover .watch-speed-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-8px);
+}
+
+.watch-speed-option {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.watch-speed-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e6edf3;
+}
+
+.watch-speed-option.active {
+  color: #7ee787;
+  font-weight: 600;
+}
+
+/* No Video State */
+.watch-no-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #161b22;
+  color: #8b949e;
+  gap: 16px;
+}
+
+.watch-no-video-icon {
+  font-size: 64px;
+  opacity: 0.5;
+}
+
+.watch-no-video h3 {
+  font-size: 18px;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.watch-no-video p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ==========================================
+   Video Info Section
+   ========================================== */
+.watch-video-info {
+  padding: 24px;
+  background: #161b22;
+  border-top: 1px solid #30363d;
+}
+
+.watch-lecture-header {
+  margin-bottom: 20px;
+}
+
+.watch-lecture-number {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(126, 231, 135, 0.15);
+  color: #7ee787;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.watch-lecture-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Tabs */
+.watch-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 12px;
+}
+
+.watch-tab {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.watch-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e6edf3;
+}
+
+.watch-tab.active {
+  background: rgba(126, 231, 135, 0.15);
+  color: #7ee787;
+}
+
+.watch-tab-content {
+  min-height: 100px;
+}
+
+.watch-lecture-description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #8b949e;
+}
+
+/* Course About */
+.watch-course-about h3 {
+  font-size: 16px;
+  color: #e6edf3;
+  margin: 0 0 12px 0;
+}
+
+.watch-course-about p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #8b949e;
+  margin: 0 0 20px 0;
+}
+
+.watch-course-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.watch-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+
+.watch-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #7ee787;
+}
+
+.watch-stat-label {
+  font-size: 13px;
+  color: #8b949e;
+  margin-top: 4px;
+}
+
+/* Navigation Buttons */
+.watch-lecture-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #30363d;
+}
+
+.watch-nav-lecture-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #e6edf3;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.watch-nav-lecture-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #7ee787;
+}
+
+.watch-nav-lecture-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.watch-nav-lecture-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.watch-nav-lecture-btn.next {
+  margin-left: auto;
+  background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+  border-color: transparent;
+}
+
+.watch-nav-lecture-btn.next:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+}
+
+/* ==========================================
+   Sidebar
+   ========================================== */
+.watch-sidebar {
+  width: 380px;
+  background: #161b22;
+  border-left: 1px solid #30363d;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.watch-sidebar.collapsed {
+  width: 0;
+  border-left: none;
+}
+
+.watch-sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #30363d;
+  flex-shrink: 0;
+}
+
+.watch-sidebar-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 8px 0;
+}
+
+.watch-sidebar-progress {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.watch-sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Section Styles */
+.watch-section {
+  border-bottom: 1px solid #30363d;
+}
+
+.watch-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  color: #e6edf3;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.watch-section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.watch-section-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.watch-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6edf3;
+}
+
+.watch-section-meta {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.watch-section-arrow {
+  width: 20px;
+  height: 20px;
+  color: #8b949e;
+  transition: transform 0.2s ease;
+}
+
+.watch-section-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+/* Lecture Items */
+.watch-section-lectures {
+  background: #0d1117;
+}
+
+.watch-lecture-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.watch-lecture-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.watch-lecture-item.active {
+  background: rgba(126, 231, 135, 0.08);
+  border-left-color: #7ee787;
+}
+
+.watch-lecture-item.completed .watch-lecture-status {
+  background: #238636;
+}
+
+.watch-lecture-status {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.watch-lecture-status .check-icon {
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  display: block;
+}
+
+.watch-lecture-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b949e;
+}
+
+/* Playing Indicator */
+.watch-playing-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.watch-playing-indicator span {
+  width: 3px;
+  background: #7ee787;
+  border-radius: 1px;
+  animation: soundWave 0.5s ease-in-out infinite;
+}
+
+.watch-playing-indicator span:nth-child(1) {
+  height: 6px;
+  animation-delay: 0s;
+}
+
+.watch-playing-indicator span:nth-child(2) {
+  height: 14px;
+  animation-delay: 0.15s;
+}
+
+.watch-playing-indicator span:nth-child(3) {
+  height: 10px;
+  animation-delay: 0.3s;
+}
+
+@keyframes soundWave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.5); }
+}
+
+.watch-lecture-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.watch-lecture-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.watch-lecture-item.completed .watch-lecture-name {
+  color: #8b949e;
+}
+
+/* Kilitli Ders Stilleri */
+.watch-lecture-item.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.watch-lecture-item.locked:hover {
+  background: transparent;
+}
+
+.watch-lecture-item.locked .watch-lecture-status {
+  background: rgba(201, 171, 48, 0.2);
+}
+
+.watch-lecture-item.locked .lock-icon {
+  width: 14px;
+  height: 14px;
+  color: #c9ab30;
+}
+
+.watch-lecture-item.locked .watch-lecture-name {
+  color: #8b949e;
+}
+
+.watch-lecture-locked-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #c9ab30;
+  background: rgba(201, 171, 48, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.watch-lecture-locked-date svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.8;
+}
+
+.watch-lecture-duration {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.watch-lecture-duration svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+}
+
+/* ==========================================
+   Loading & Error States
+   ========================================== */
+.watch-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0d1117;
+}
+
+.watch-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.watch-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(126, 231, 135, 0.2);
+  border-top-color: #7ee787;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.watch-loading-content p {
+  font-size: 15px;
+  color: #8b949e;
+}
+
+.watch-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0d1117;
+}
+
+.watch-error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 40px;
+}
+
+.watch-error-icon {
+  font-size: 64px;
+  opacity: 0.5;
+}
+
+.watch-error-content h2 {
+  font-size: 24px;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.watch-error-content p {
+  font-size: 15px;
+  color: #8b949e;
+  margin: 0;
+}
+
+.watch-error-btn {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.watch-error-btn:hover {
+  background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+   Scrollbar Styles
+   ========================================== */
+.watch-sidebar-content::-webkit-scrollbar,
+.watch-video-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.watch-sidebar-content::-webkit-scrollbar-track,
+.watch-video-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.watch-sidebar-content::-webkit-scrollbar-thumb,
+.watch-video-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.watch-sidebar-content::-webkit-scrollbar-thumb:hover,
+.watch-video-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================
+   Responsive Design
+   ========================================== */
+@media (max-width: 1200px) {
+  .watch-sidebar {
+    width: 320px;
+  }
+  
+  .watch-course-title {
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .watch-main {
+    flex-direction: column;
+  }
+  
+  .watch-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #30363d;
+    max-height: 400px;
+  }
+  
+  .watch-sidebar.collapsed {
+    max-height: 0;
+  }
+  
+  .watch-navbar-center {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .watch-navbar {
+    padding: 0 12px;
+    height: 56px;
+  }
+  
+  .watch-course-title {
+    max-width: 180px;
+    font-size: 14px;
+  }
+  
+  .watch-video-info {
+    padding: 16px;
+  }
+  
+  .watch-lecture-title {
+    font-size: 18px;
+  }
+  
+  .watch-tabs {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .watch-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  
+  .watch-lecture-nav {
+    flex-direction: column;
+  }
+  
+  .watch-nav-lecture-btn {
+    justify-content: center;
+  }
+  
+  .watch-nav-lecture-btn.next {
+    margin-left: 0;
+  }
+  
+  .watch-course-stats {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .watch-stat {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 16px;
+  }
+  
+  .watch-stat-value {
+    font-size: 22px;
+  }
+  
+  .watch-control-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .watch-control-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .watch-time-display {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .watch-play-button {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .watch-play-button svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .watch-volume-control {
+    display: none;
+  }
+}

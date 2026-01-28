@@ -1,0 +1,770 @@
+/* ==========================================
+   Lecture Schedule Calendar - Ders Yayın Takvimi
+   ========================================== */
+
+/* Loading State */
+.schedule-calendar-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: #8b949e;
+}
+
+.schedule-calendar-loading .loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(139, 148, 158, 0.2);
+  border-top-color: #7ee787;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Main Container */
+.schedule-calendar-page {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  background: #0d1117;
+}
+
+/* Header */
+.schedule-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #30363d;
+}
+
+.schedule-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #8b949e;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e6edf3;
+  border-color: #8b949e;
+}
+
+.back-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.schedule-header-info h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 4px 0;
+}
+
+.schedule-header-info p {
+  font-size: 14px;
+  color: #8b949e;
+  margin: 0;
+}
+
+.schedule-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  min-width: 90px;
+}
+
+.stat-count {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #8b949e;
+  margin-top: 2px;
+}
+
+.stat-item.published .stat-count { color: #7ee787; }
+.stat-item.scheduled .stat-count { color: #58a6ff; }
+.stat-item.draft .stat-count { color: #f0883e; }
+
+/* Content Layout */
+.schedule-calendar-content {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
+/* Sidebar - Zamanlanmamış Dersler */
+.schedule-sidebar {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 20px;
+  height: fit-content;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.schedule-sidebar h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 8px 0;
+}
+
+.sidebar-hint {
+  font-size: 12px;
+  color: #8b949e;
+  margin: 0 0 16px 0;
+}
+
+.no-unscheduled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  color: #7ee787;
+  text-align: center;
+}
+
+.no-unscheduled span {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.no-unscheduled p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.unscheduled-lectures {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unscheduled-lecture-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(240, 136, 62, 0.1);
+  border: 1px solid rgba(240, 136, 62, 0.3);
+  border-radius: 8px;
+  cursor: grab;
+  transition: all 0.2s;
+}
+
+.unscheduled-lecture-item:hover {
+  background: rgba(240, 136, 62, 0.15);
+  border-color: rgba(240, 136, 62, 0.5);
+  transform: translateX(4px);
+}
+
+.unscheduled-lecture-item:active {
+  cursor: grabbing;
+}
+
+.unscheduled-lecture-item .lecture-order {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(240, 136, 62, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f0883e;
+  flex-shrink: 0;
+}
+
+.unscheduled-lecture-item .lecture-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.unscheduled-lecture-item .lecture-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unscheduled-lecture-item .lecture-duration {
+  font-size: 11px;
+  color: #8b949e;
+}
+
+.unscheduled-lecture-item .drag-handle {
+  color: #8b949e;
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+/* Yayınlanmış Dersler */
+.published-section-title {
+  margin-top: 24px !important;
+  padding-top: 16px;
+  border-top: 1px solid #30363d;
+}
+
+.published-lectures {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.published-lecture-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(126, 231, 135, 0.05);
+  border: 1px solid rgba(126, 231, 135, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.published-lecture-item:hover {
+  background: rgba(126, 231, 135, 0.1);
+}
+
+.published-lecture-item .lecture-order {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(126, 231, 135, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7ee787;
+  flex-shrink: 0;
+}
+
+.published-lecture-item .lecture-name {
+  font-size: 12px;
+  color: #8b949e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Calendar Main */
+.schedule-calendar-main {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* Calendar Navigation */
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.calendar-nav h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+  min-width: 200px;
+  text-align: center;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #8b949e;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e6edf3;
+}
+
+.nav-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.today-btn {
+  padding: 8px 16px;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  border-radius: 6px;
+  color: #58a6ff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.today-btn:hover {
+  background: rgba(88, 166, 255, 0.2);
+}
+
+/* Calendar Grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #30363d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendar-day-header {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b949e;
+  background: #1c2128;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-day {
+  min-height: 100px;
+  padding: 8px;
+  background: #1c2128;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.calendar-day:hover {
+  background: #22272e;
+}
+
+.calendar-day.other-month {
+  background: #161b22;
+  opacity: 0.5;
+}
+
+.calendar-day.other-month .day-number {
+  color: #484f58;
+}
+
+.calendar-day.today {
+  background: rgba(88, 166, 255, 0.12);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+}
+
+.calendar-day.today .day-number {
+  background: #58a6ff;
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day.past {
+  opacity: 0.6;
+}
+
+.day-number {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e6edf3;
+  margin-bottom: 6px;
+}
+
+.day-lectures {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendar-lecture {
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: grab;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+
+.calendar-lecture:active {
+  cursor: grabbing;
+}
+
+.calendar-lecture.scheduled {
+  background: rgba(88, 166, 255, 0.15);
+  border-left: 2px solid #58a6ff;
+  color: #58a6ff;
+}
+
+.calendar-lecture.scheduled:hover {
+  background: rgba(88, 166, 255, 0.25);
+}
+
+.calendar-lecture.published {
+  background: rgba(126, 231, 135, 0.15);
+  border-left: 2px solid #7ee787;
+  color: #7ee787;
+}
+
+.calendar-lecture.published:hover {
+  background: rgba(126, 231, 135, 0.25);
+}
+
+.lecture-time {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.lecture-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Schedule Modal */
+.schedule-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.schedule-modal {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.2s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #30363d;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e6edf3;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.lecture-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #1c2128;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.preview-order {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #7ee787 0%, #3fb950 100%);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0d1117;
+  flex-shrink: 0;
+}
+
+.lecture-preview h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 4px 0;
+}
+
+.preview-duration {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.schedule-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8b949e;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  background: #1c2128;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #e6edf3;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #58a6ff;
+  background: rgba(88, 166, 255, 0.05);
+}
+
+.current-schedule-info {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.2);
+  border-radius: 8px;
+}
+
+.current-schedule-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #58a6ff;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #30363d;
+  justify-content: flex-end;
+}
+
+.modal-footer .btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-footer .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #1c2128;
+  color: #8b949e;
+  border: 1px solid #30363d !important;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #22272e;
+  color: #e6edf3;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #58a6ff 0%, #388bfd 100%);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #7ee787 0%, #3fb950 100%);
+  color: #0d1117;
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(126, 231, 135, 0.3);
+}
+
+.btn-danger {
+  background: rgba(248, 81, 73, 0.15);
+  color: #f85149;
+  border: 1px solid rgba(248, 81, 73, 0.3) !important;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(248, 81, 73, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .schedule-calendar-content {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .schedule-calendar-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .schedule-sidebar {
+    max-height: 300px;
+  }
+  
+  .schedule-calendar-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .schedule-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .schedule-calendar-page {
+    padding: 16px;
+  }
+  
+  .calendar-day {
+    min-height: 70px;
+    padding: 4px;
+  }
+  
+  .calendar-day-header {
+    padding: 8px 4px;
+    font-size: 10px;
+  }
+  
+  .day-number {
+    font-size: 11px;
+  }
+  
+  .calendar-lecture {
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+  
+  .lecture-time {
+    display: none;
+  }
+  
+  .schedule-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-footer {
+    flex-wrap: wrap;
+  }
+  
+  .modal-footer .btn {
+    flex: 1;
+    min-width: 45%;
+  }
+}
